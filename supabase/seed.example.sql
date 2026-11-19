@@ -1,0 +1,5 @@
+-- EXAMPLE ONLY, edit later when class details and the admin auth UUID are available.
+-- Do NOT seed random usernames, fake students, or private data.
+-- insert into public.sections(code) values ('BSIT-1A'), ('BSIT-1B');
+-- insert into public.subjects(code, name) values ('PROG101', 'Introduction to Programming');
+-- insert into public.admin_users(user_id) values ('<ADMIN_AUTH_USER_UUID>');
