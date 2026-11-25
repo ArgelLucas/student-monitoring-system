@@ -1,0 +1,273 @@
+/* StudentMonitor v5.5 | Classroom Edition
+   A dense, usable 100%-zoom desktop layout inspired by the approved concept.
+   Scoped to admin so student forms, Supabase security and the rest of the app
+   retain their existing behavior. Motion remains driven by GSAP components. */
+
+:root[data-theme='light'] {
+  --bg: #f8f9f6;
+  --side: #fffefa;
+  --surface: #fffefa;
+  --surface-2: #f3f7f1;
+  --surface-3: #e8f4e9;
+  --stroke: #e5e9e3;
+  --stroke-strong: #d6ded5;
+  --text: #172a25;
+  --muted: #52655d;
+  --faint: #718078;
+  --mint: #087b55;
+  --mint-bright: #056946;
+  --card: #fffefa;
+  --card-solid: #fffefa;
+  --chart-grid: #e8ede8;
+  --shadow: 0 3px 14px rgba(22,61,38,.045), 0 1px 2px rgba(22,61,38,.026);
+}
+:root[data-theme='dark'] {
+  --bg: #0b1917;
+  --side: #10201d;
+  --surface: #152822;
+  --surface-2: #1b332b;
+  --surface-3: #254238;
+  --stroke: rgba(223,245,231,.1);
+  --stroke-strong: rgba(223,245,231,.2);
+  --text: #f2f8f1;
+  --muted: #c1d0c5;
+  --faint: #92a89a;
+  --mint: #92e1b9;
+  --mint-bright: #b1efcd;
+  --card: #162a24;
+  --card-solid: #162a24;
+  --chart-grid: rgba(229,245,232,.095);
+}
+
+/* Structural corrections: a slim sidebar, small header, and content that fits. */
+.classroom-app { --classroom-side: 234px; font-family: Inter, 'Segoe UI Variable', 'Segoe UI', Arial, sans-serif; }
+.classroom-app .sidebar {
+  width: var(--classroom-side);
+  background: var(--side);
+  padding: 18px 14px 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--stroke-strong) transparent;
+  gap: 0;
+}
+.classroom-app .workspace { margin-left: var(--classroom-side); background: var(--bg); }
+.classroom-app .sidebar .brand { padding: 0 6px 16px; font-size: 17px; letter-spacing: -.7px; gap: 9px; white-space: nowrap; }
+.classroom-app .brand-mark { width: 39px; height: 39px; display: block; flex: none; object-fit: contain; }
+.classroom-app .brand-dot { color: var(--mint); }
+.classroom-app .sidebar-kicker { margin: 16px 0 9px; padding: 0 10px; font-size: 9px; letter-spacing: 1.45px; }
+.classroom-app .nav-list { gap: 3px; }
+.classroom-app .nav-link {
+  min-height: 42px; padding: 8px 12px; gap: 12px; border-radius: 10px;
+  color: var(--muted); font-size: 12.5px; font-weight: 590;
+  text-decoration: none;
+}
+.classroom-app .nav-link svg { color: inherit; flex: none; }
+.classroom-app .nav-active-indicator {
+  border-radius: 10px; left: 0; right: 0;
+  background: #087a53; border-color: #087a53; box-shadow: none;
+}
+.classroom-app .nav-list > .nav-link.active { color: #fff; font-weight: 700; }
+:root[data-theme='dark'] .classroom-app .nav-active-indicator { background: #267d59; border-color: #267d59; }
+:root[data-theme='dark'] .classroom-app .nav-list > .nav-link.active { color: #fff; }
+.classroom-app .nav-separator { margin: 18px 8px 15px; }
+.classroom-app .sidebar-scroll { flex: 1 1 auto; min-height: 0; }
+.classroom-app .sidebar-theme-link { width: 100%; text-align: left; background: none; border: 0; cursor: pointer; font: inherit; }
+.classroom-app .sidebar-bottom-note {
+  margin: 16px 8px 0; padding-top: 12px; border-top: 1px solid var(--stroke);
+  font-size: 10px; color: var(--muted); line-height: 1.5;
+}
+.classroom-app .sidebar-bottom-note small { display: block; margin-left: 13px; font-size: 10px; color: var(--faint); }
+.classroom-app .sidebar-status-dot { display: inline-block; width: 6px; height: 6px; background: #20a978; border-radius: 50%; margin-right: 4px; }
+.classroom-app .topbar {
+  height: 62px; padding: 0 clamp(16px,1.95vw,30px);
+  background: var(--side); border-color: var(--stroke); backdrop-filter: blur(14px);
+}
+.classroom-app .topbar-right { gap: 8px; }
+.classroom-app .crumb { font-size: 12px; }
+.classroom-app .search-box { width: min(290px,24vw); height: 37px; border-radius: 10px; background: var(--surface); padding: 0 11px; }
+.classroom-app .search-box input { font-size: 11.5px; }
+.classroom-app .search-box kbd { font-size: 9px; }
+.classroom-app .icon-btn { min-width: 34px; width: 34px; height: 34px; border-radius: 9px; }
+.classroom-app .admin-avatar { width: 34px; height: 34px; background: #e0f7b9; margin-left: 5px; font-size: 12px; }
+.classroom-app .admin-label { font-size: 12px; }
+.classroom-app .admin-label small { font-size: 10px; }
+.classroom-app .main-area {
+  padding: 19px clamp(16px,1.95vw,30px) 25px;
+  max-width: none; min-height: calc(100vh - 62px);
+}
+.classroom-app .footer { display: none; }
+.classroom-app .main-refresh-indicator { min-height: 0; }
+
+/* Main overview: editorial hierarchy, small data-dense cards, bento grid. */
+.classroom-app .classroom-overview { display: block; }
+.classroom-app .classroom-overview .page-heading { min-height: 95px; margin: 0 0 15px; gap: 14px; align-items: center; }
+.classroom-app .classroom-overview .eyebrow { font-size: 9.5px; letter-spacing: 1.15px; font-weight: 750; color: var(--mint); }
+.classroom-app .classroom-overview .page-heading h1 { font-size: clamp(25px,2.4vw,35px); font-weight: 760; letter-spacing: -1.3px; line-height: 1.14; margin: 7px 0 5px; }
+.classroom-app .classroom-overview .page-heading p { font-size: 12.5px; margin: 0; line-height: 1.4; }
+.classroom-app .classroom-overview .wave { color: #7a9c31; font-size: .65em; }
+.classroom-app .classroom-overview .quick-actions { gap: 8px; flex-wrap: nowrap; }
+.classroom-app .classroom-overview .quick-actions .btn { min-height: 36px; padding: 9px 12px; border-radius: 9px; font-size: 11px; white-space: nowrap; box-shadow: 0 2px 3px rgba(23,64,38,.035); }
+.classroom-app .classroom-overview .quick-actions .btn svg { width: 15px; }
+.classroom-app .classroom-overview .btn.primary { background: #08764f; border-color: #08764f; color: #fff; }
+.classroom-app .classroom-overview .btn.primary:hover { background: #075e42; }
+:root[data-theme='dark'] .classroom-app .classroom-overview .btn.primary { background: #63c69c; color: #10271e; border-color: #63c69c; }
+.classroom-app .classroom-overview .stats-grid { gap: 13px; grid-template-columns: repeat(4,minmax(0,1fr)); }
+.classroom-app .classroom-overview .stat-card {
+  min-height: 128px; padding: 14px 17px 13px; border-radius: 16px; box-shadow: none;
+  border-color: var(--stroke); display: flex; flex-direction: column;
+}
+:root[data-theme='light'] .classroom-app .classroom-overview .stat-card.tone-mint { background: #e8f3ea; border-color: #e4ede5; }
+:root[data-theme='light'] .classroom-app .classroom-overview .stat-card.tone-green { background: #e3f1e7; border-color: #e0eae0; }
+:root[data-theme='light'] .classroom-app .classroom-overview .stat-card.tone-gold { background: #f7f2e6; border-color: #f0ebdc; }
+:root[data-theme='light'] .classroom-app .classroom-overview .stat-card.tone-rose { background: #f3edf0; border-color: #eee5e9; }
+.classroom-app .classroom-overview .stat-card::after {
+  width: 140px; height: 140px; right: -88px; top: -93px;
+  background: rgba(105,167,126,.07); border: 0;
+}
+.classroom-app .classroom-overview .stat-symbol { width: 31px; height: 31px; min-height: 31px; border-radius: 9px; margin-bottom: 9px; background: rgba(70,170,106,.13); color: #16845e; }
+.classroom-app .classroom-overview .stat-symbol svg { width: 18px; height: 18px; }
+.classroom-app .classroom-overview .stat-card.tone-gold .stat-symbol { background: rgba(156,134,45,.12); color: #91822d; }
+.classroom-app .classroom-overview .stat-card.tone-rose .stat-symbol { background: rgba(142,80,118,.10); color: #875176; }
+.classroom-app .classroom-overview .stat-label { font-size: 11px; font-weight: 660; line-height: 1.2; color: var(--muted); }
+.classroom-app .classroom-overview .stat-number { font-size: 28px; font-weight: 780; line-height: 1.15; color: var(--text); margin: 4px 0 2px; }
+.classroom-app .classroom-overview .stat-card p { color: var(--muted); font-size: 10px; margin: 0; line-height: 1.3; }
+.classroom-app .classroom-overview .dashboard-bento {
+  margin-top: 14px; display: grid;
+  grid-template-columns: minmax(0,1.56fr) minmax(315px,1fr);
+  column-gap: 14px; row-gap: 14px; align-items: stretch;
+}
+.classroom-app .classroom-overview .glass-card {
+  border: 1px solid var(--stroke-strong); border-radius: 16px; box-shadow: var(--shadow);
+  background: var(--card); padding: 15px 17px; min-width: 0;
+}
+.classroom-app .classroom-overview .bento-panel { overflow: hidden; }
+.classroom-app .classroom-overview .bento-panel.analytics-panel,
+.classroom-app .classroom-overview .bento-panel.classes-panel { min-height: 236px; }
+.classroom-app .classroom-overview .bento-panel.students-panel,
+.classroom-app .classroom-overview .bento-panel.activity-panel { min-height: 197px; }
+.classroom-app .classroom-overview .panel-heading { margin-bottom: 10px; min-height: 35px; gap: 9px; }
+.classroom-app .classroom-overview .panel-glyph { width: 30px; height: 30px; border-radius: 9px; color: #087c53; background: #e5f4e9; }
+:root[data-theme='dark'] .classroom-app .classroom-overview .panel-glyph { background: #244a3b; color: #b1edcd; }
+.classroom-app .classroom-overview .panel-glyph svg { width: 16px; height: 16px; }
+.classroom-app .classroom-overview .panel-heading-text h2 { font-size: 14px; font-weight: 740; letter-spacing: -.26px; color: var(--text); }
+.classroom-app .classroom-overview .panel-heading-text p { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.classroom-app .classroom-overview .panel-action { margin-left: auto; min-width: 0; }
+.classroom-app .classroom-overview .panel-actions-inline { flex-wrap: nowrap; gap: 7px; }
+.classroom-app .classroom-overview .segmented { padding: 3px; gap: 2px; border-radius: 9px; }
+.classroom-app .classroom-overview .segmented button { min-height: 27px; padding: 4px 7px; border-radius: 7px; font-size: 10px; }
+.classroom-app .classroom-overview .segmented button.active { background: #087c53; color: #fff; }
+.classroom-app .classroom-overview .panel-focus-button { min-height: 30px; padding: 5px 8px; border-radius: 8px; font-size: 9.5px; }
+.classroom-app .classroom-overview .panel-focus-button svg { width: 13px; height: 13px; }
+.classroom-app .classroom-overview .text-action { font-size: 10.5px; white-space: nowrap; color: var(--mint); }
+.classroom-app .classroom-overview .chart-layout { gap: 7px; min-height: 0; align-items: stretch; }
+.classroom-app .classroom-overview .chart-container { flex: 1 1 auto; min-width: 0; }
+.classroom-app .classroom-overview .analytics-svg { width: 100%; height: 170px; max-height: 170px; display: block; }
+.classroom-app .classroom-overview .graph-label { font-size: 10.5px; }
+.classroom-app .classroom-overview .chart-summary { width: 117px; min-width: 117px; border-color: var(--stroke); padding: 9px 0 0 12px; gap: 10px; }
+.classroom-app .classroom-overview .chart-summary span { font-size: 9.5px; }
+.classroom-app .classroom-overview .chart-summary strong { font-size: 20px; }
+.classroom-app .classroom-overview .chart-summary small { font-size: 9px; }
+.classroom-app .classroom-overview .chart-caption { font-size: 10px; margin-top: -3px; }
+.classroom-app .classroom-overview .class-window-list { display: grid; min-width: 0; }
+.classroom-app .classroom-overview .class-window-row {
+  display: flex; align-items: center; gap: 10px; padding: 9px 1px; min-width: 0;
+  border-top: 1px solid var(--stroke); color: var(--text); text-decoration: none;
+}
+.classroom-app .classroom-overview .class-window-row:first-child { border-top: 0; }
+.classroom-app .classroom-overview .class-window-row:hover { color: var(--mint); }
+.classroom-app .classroom-overview .class-window-time {
+  flex: none; width: 74px; padding: 6px 4px; background: var(--surface-2);
+  color: var(--mint); font-size: 10px; font-weight: 720; border-radius: 8px; text-align: center;
+}
+.classroom-app .classroom-overview .class-window-description { display: grid; gap: 3px; flex: 1; min-width: 0; }
+.classroom-app .classroom-overview .class-window-description strong { font-size: 10.5px; font-weight: 720; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.classroom-app .classroom-overview .class-window-description strong span { color: var(--muted); font-weight: 560; }
+.classroom-app .classroom-overview .class-window-description small { font-size: 9.5px; color: var(--faint); white-space: nowrap; }
+.classroom-app .classroom-overview .class-window-row .status-tag { flex: none; font-size: 9px; padding: 4px 8px; }
+.classroom-app .classroom-overview .approval-preview-list,
+.classroom-app .classroom-overview .activity-preview-list { display: grid; min-width: 0; }
+.classroom-app .classroom-overview .approval-preview-row {
+  display: flex; align-items: center; min-height: 51px; padding: 6px 0;
+  border-top: 1px solid var(--stroke); gap: 9px; min-width: 0;
+}
+.classroom-app .classroom-overview .approval-preview-row:first-child,
+.classroom-app .classroom-overview .activity-preview-row:first-child { border-top: 0; }
+.classroom-app .classroom-overview .mini-avatar { width: 30px; height: 30px; min-width: 30px; border-radius: 100px; font-size: 10px; }
+.classroom-app .classroom-overview .approval-student { display: grid; min-width: 0; flex: 1 1 auto; gap: 2px; }
+.classroom-app .classroom-overview .approval-student strong { font-size: 10.6px; font-weight: 740; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.classroom-app .classroom-overview .approval-student small { color: var(--muted); font-size: 9.4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.classroom-app .classroom-overview .approval-github { color: var(--faint); font-size: 9px; white-space: nowrap; min-width: 0; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+.classroom-app .classroom-overview .approval-buttons { display: flex; gap: 6px; flex: none; }
+.classroom-app .classroom-overview .approval-buttons .btn { min-height: 28px; padding: 5px 9px; border-radius: 8px; font-size: 9.5px; }
+.classroom-app .classroom-overview .approval-buttons .btn.primary { background: #087650; color: #fff; }
+.classroom-app .classroom-overview .activity-preview-row { display: flex; gap: 10px; align-items: center; min-height: 51px; padding: 6px 0; border-top: 1px solid var(--stroke); }
+.classroom-app .classroom-overview .activity-preview-icon { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--surface-2); color: var(--mint); }
+.classroom-app .classroom-overview .activity-preview-description { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.classroom-app .classroom-overview .activity-preview-description strong { font-size: 10.5px; color: var(--text); font-weight: 720; text-transform: capitalize; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.classroom-app .classroom-overview .activity-preview-description small { font-size: 9.5px; color: var(--muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.classroom-app .classroom-overview .activity-preview-row time { color: var(--faint); font-size: 9px; white-space: nowrap; }
+.classroom-app .classroom-overview .empty-state { min-height: 96px; padding: 15px 8px; font-size: 11px; color: var(--muted); text-align: center; }
+.classroom-app .classroom-overview .empty-state svg { width: 18px; height: 18px; }
+.classroom-app .classroom-overview .footnote { margin-top: 8px; font-size: 9px; line-height: 1.4; }
+/* The expanded Flip panel deliberately gets more room; ordinary cards stay compact. */
+.classroom-app .classroom-overview .dashboard-bento > .bento-panel.is-expanded {
+  min-height: 280px; padding: 20px 22px; background: var(--card); border-color: #9bc6ae;
+  box-shadow: 0 12px 36px rgba(29,84,47,.12);
+}
+.classroom-app .classroom-overview .dashboard-bento > .bento-panel.is-expanded .analytics-svg { height: 240px; max-height: 240px; }
+.classroom-app .classroom-overview .dashboard-bento.has-focus > .bento-panel:not(.is-expanded) { filter: none; }
+
+/* At narrower laptop resolutions, preserve legibility rather than squeezing data. */
+@media (max-width: 1450px) {
+  .classroom-app { --classroom-side: 221px; }
+  .classroom-app .classroom-overview .page-heading h1 { font-size: clamp(25px,2.2vw,31px); }
+  .classroom-app .classroom-overview .quick-actions .btn { font-size: 10px; padding: 8px 9px; }
+  .classroom-app .classroom-overview .dashboard-bento { grid-template-columns: minmax(0,1.42fr) minmax(305px,1fr); }
+  .classroom-app .classroom-overview .approval-github { display: none; }
+}
+@media (max-width: 1180px) {
+  .classroom-app .classroom-overview .page-heading { align-items: flex-start; flex-direction: column; min-height: 0; }
+  .classroom-app .classroom-overview .quick-actions { justify-content: flex-start; }
+  .classroom-app .classroom-overview .dashboard-bento { grid-template-columns: 1fr; }
+  .classroom-app .classroom-overview .chart-summary { width: 135px; }
+  .classroom-app .classroom-overview .dashboard-bento > .bento-panel.is-expanded { grid-column: 1; }
+}
+@media (max-width: 900px) {
+  .classroom-app .sidebar { width: 252px; transform: translateX(-110%); }
+  .classroom-app .sidebar.show { transform: translateX(0); }
+  .classroom-app .workspace { margin-left: 0; }
+  .classroom-app .topbar { padding-left: 16px; padding-right: 16px; }
+  .classroom-app .main-area { padding-left: 16px; padding-right: 16px; }
+}
+@media (max-width: 640px) {
+  .classroom-app .classroom-overview .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+  .classroom-app .classroom-overview .stat-card { min-height: 120px; padding: 12px; }
+  .classroom-app .classroom-overview .dashboard-bento { gap: 10px; margin-top: 12px; }
+  .classroom-app .classroom-overview .glass-card { padding: 14px; }
+  .classroom-app .classroom-overview .panel-heading { flex-wrap: wrap; }
+  .classroom-app .classroom-overview .panel-action { margin-left: auto; }
+  .classroom-app .classroom-overview .panel-actions-inline { gap: 5px; flex-wrap: wrap; }
+  .classroom-app .classroom-overview .chart-layout { display: block; }
+  .classroom-app .classroom-overview .chart-summary { width: 100%; min-width: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: 10px 0 0; border-left: 0; border-top: 1px solid var(--stroke); }
+  .classroom-app .classroom-overview .chart-summary strong { font-size: 16px; }
+  .classroom-app .classroom-overview .class-window-time { width: 66px; }
+  .classroom-app .classroom-overview .class-window-description strong { max-width: 175px; }
+  .classroom-app .classroom-overview .approval-github { display: none; }
+  .classroom-app .classroom-overview .approval-buttons .btn { padding: 5px 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .classroom-app .classroom-overview .glass-card,
+  .classroom-app .classroom-overview .btn { transition: none !important; }
+}
+
+/* v5.5.1: stable in-place focus transitions. Do not force the active
+   panel to the top or let browser scroll anchoring move the viewport. */
+.classroom-app .classroom-overview .dashboard-bento {
+  overflow-anchor: none;
+}
+.classroom-app .classroom-overview .dashboard-bento > .bento-panel {
+  overflow-anchor: none;
+}
+.classroom-app .classroom-overview .dashboard-bento > .bento-panel.is-expanded {
+  order: 0;
+}

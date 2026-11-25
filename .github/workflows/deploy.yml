@@ -21,13 +21,21 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
-      - name: Build Vite and Tailwind
+      - name: Validate source and run tests
+        run: |
+          npm run check
+          npm test
+      - name: Build React, GSAP and CSS
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
           REPO_NAME: ${{ github.event.repository.name }}
           OWNER: ${{ github.repository_owner }}
         run: |
+          if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "Missing Supabase GitHub Actions variables" >&2
+            exit 1
+          fi
           if [ "$REPO_NAME" = "$OWNER.github.io" ]; then
             export BASE_PATH=/
           else

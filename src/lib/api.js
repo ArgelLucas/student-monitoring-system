@@ -10,53 +10,106 @@ export async function rpc(name, args = {}) {
   return ensure(data, error);
 }
 
-export async function getContext() {
-  // getUser validates the token against the Auth server; do not trust user_metadata.
+// The Supabase REST API often caps each response at 1000 rows; fetch complete
+// small-school datasets in pages instead of silently displaying partial totals.
+// 10,000 rows is a safety ceiling: larger deployments require server-side
+// aggregated reporting and a dedicated paginated endpoint.
+export async function fetchPaged(table, fields, orderKey, maxRows = 10000) {
+  const pageSize = 500;
+  const collected = [];
+  for (let offset = 0; offset <= maxRows; offset += pageSize) {
+    const { data, error } = await supabase.from(table).select(fields)
+      .order(orderKey, { ascending: false }).range(offset, offset + pageSize - 1);
+    ensure(data, error);
+    collected.push(...data);
+    if (data.length < pageSize) return collected;
+  }
+  throw new Error(`The ${table} dataset is too large for this dashboard; use paginated reporting.`);
+}
+
+export async function getContext({ touchSession = true } = {}) {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) return null;
-  await rpc('touch_portal_session');
+  if (touchSession) await rpc('touch_portal_session');
+  else if (!(await rpc('portal_session_active'))) throw new Error('Portal session has expired; sign in again');
 
   const admin = await rpc('is_admin');
   if (admin) return { user: data.user, admin: true, profile: null };
 
-  const profileResult = await supabase.from('student_profiles')
+  const result = await supabase.from('student_profiles')
     .select('user_id,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,completed_at')
     .eq('user_id', data.user.id).maybeSingle();
-  const profile = ensure(profileResult.data, profileResult.error);
-  return { user: data.user, admin: false, profile };
+  return { user: data.user, admin: false, profile: ensure(result.data, result.error) };
 }
 
 export async function getCatalog() {
-  const [sections, subjects] = await Promise.all([
+  const [sections, subjects, sectionSubjects] = await Promise.all([
     supabase.from('sections').select('id,code').eq('is_active', true).order('code'),
     supabase.from('subjects').select('id,code,name').eq('is_active', true).order('code'),
+    rpc('list_section_subjects'),
   ]);
   return {
     sections: ensure(sections.data, sections.error),
     subjects: ensure(subjects.data, subjects.error),
+    sectionSubjects,
   };
 }
 
 export async function getMyAttendance(userId) {
   const { data, error } = await supabase.from('attendance_records')
-    .select('id,attendance_date,marked_at,status,subject_id')
-    .eq('student_id', userId).order('attendance_date', { ascending: false }).limit(50);
+    .select('id,attendance_date,attendance_window_id,marked_at,status,subject_id')
+    .eq('student_id', userId).order('marked_at', { ascending: false }).limit(250);
   return ensure(data, error);
 }
 
+export async function getMyClassData(sectionId) {
+  const [schedules, windows] = await Promise.all([
+    supabase.from('class_schedules')
+      .select('id,section_id,subject_id,weekday,start_time,end_time')
+      .eq('section_id', sectionId).order('weekday').order('start_time'),
+    supabase.from('attendance_windows')
+      .select('id,schedule_id,meeting_date,is_open,opened_at,expires_at')
+      .order('meeting_date', { ascending: false }).limit(500),
+  ]);
+  return { schedules: ensure(schedules.data, schedules.error), windows: ensure(windows.data, windows.error) };
+}
+
+async function getAuditWithCompatibility() {
+  const fields = 'id,actor_id,action,subject_user_id,created_at,details';
+  const first = await supabase.from('audit_logs').select(fields)
+    .order('created_at', { ascending: false }).limit(150);
+  if (!first.error) return { records: first.data, warnings: [] };
+  // Older v2 databases don't have audit_logs.details. Show an actionable
+  // migration warning while keeping the otherwise protected dashboard usable.
+  if (!/column.*audit_logs\.details.*does not exist|column.*details.*does not exist/i.test(first.error.message || '')) {
+    throw new Error(first.error.message || 'Could not fetch audit history');
+  }
+  const fallback = await supabase.from('audit_logs')
+    .select('id,actor_id,action,subject_user_id,created_at')
+    .order('created_at',{ascending:false}).limit(150);
+  return {
+    records: ensure(fallback.data,fallback.error).map(item => ({...item, details:{}})),
+    warnings: ['Supabase migration 003 has not been fully applied. Run 202611250003_admin_reporting.sql to enable detailed audit logs and class-assignment corrections.'],
+  };
+}
+
 export async function getAdminData() {
-  const [profiles, attendance, catalog] = await Promise.all([
-    supabase.from('student_profiles')
-      .select('user_id,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,updated_at')
-      .order('surname').limit(500),
-    supabase.from('attendance_records')
-      .select('student_id,subject_id,attendance_date,marked_at,status')
-      .order('marked_at', { ascending: false }).limit(1000),
+  const [profiles, attendance, schedulesResult, windows, catalog, auditResult] = await Promise.all([
+    fetchPaged('student_profiles',
+      'user_id,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,updated_at', 'user_id'),
+    fetchPaged('attendance_records',
+      'id,student_id,subject_id,attendance_date,attendance_window_id,marked_at,status', 'id'),
+    supabase.from('class_schedules')
+      .select('id,section_id,subject_id,weekday,start_time,end_time')
+      .order('weekday').order('start_time'),
+    fetchPaged('attendance_windows',
+      'id,schedule_id,meeting_date,is_open,opened_at,expires_at', 'id'),
     getCatalog(),
+    getAuditWithCompatibility(),
   ]);
   return {
-    profiles: ensure(profiles.data, profiles.error),
-    attendance: ensure(attendance.data, attendance.error),
-    ...catalog,
+    profiles, attendance,
+    schedules: ensure(schedulesResult.data, schedulesResult.error),
+    windows, audit: auditResult.records, schemaWarnings: auditResult.warnings, ...catalog,
   };
 }

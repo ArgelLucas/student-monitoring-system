@@ -1,0 +1,56 @@
+/* StudentMonitor v5.6: student experience only. Leaves admin/GSAP styles intact. */
+.student-brand-logo{height:43px;width:43px;flex:none;object-fit:contain;border-radius:12px}
+.student-topbar .student-nav a{padding:10px 12px;border-radius:10px;font-weight:630;transition:background .2s,color .2s}
+.student-topbar .student-nav a[aria-current="page"]{background:var(--surface-2);color:var(--mint)}
+.student-main{max-width:1200px;padding-top:30px}
+.student-journey{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:4px 0 24px}
+.student-journey-step{display:flex;gap:8px;align-items:center;padding:10px 13px;background:var(--surface);border:1px solid var(--stroke);border-radius:12px;color:var(--faint);font-size:12px;font-weight:640}
+.student-journey-step.reached{color:var(--text)}
+.student-journey-step.current{border-color:var(--mint);background:var(--surface-2)}
+.student-journey-number{height:23px;width:23px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--muted);font-size:11px}
+.student-journey-step.reached .student-journey-number{background:var(--mint);color:var(--mint-dark)}
+.student-journey-step.current .student-journey-number{box-shadow:0 0 0 3px color-mix(in srgb,var(--mint) 18%,transparent)}
+.student-profile-layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;align-items:start;gap:20px}
+.student-profile-layout .profile-card{max-width:none}
+.student-card-heading{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.student-card-heading>svg{width:38px;height:38px;padding:9px;background:var(--surface-3);color:var(--mint);border-radius:10px;flex:none}
+.student-card-heading h2{font-size:16px;font-weight:770}
+.student-card-heading p{font-size:12px;color:var(--muted);margin-top:5px}
+.student-field-hint{display:block;color:var(--muted);font-size:11px;line-height:1.45}
+.student-profile-layout .profile-form .field-label{align-content:start}
+.student-profile-layout .profile-form .field-label input:disabled,.student-profile-layout .profile-form .field-label select:disabled{opacity:.65;cursor:not-allowed}
+.student-verified-input{display:flex;align-items:center;gap:8px;border:1px solid var(--stroke);background:var(--surface-2);border-radius:10px;padding:0 12px;color:var(--mint)}
+.student-verified-input input{background:transparent!important;border:0!important;box-shadow:none!important;min-width:0;flex:1;cursor:default;color:var(--text);padding-left:0;padding-right:0}
+.student-onboarding-aside .glass-card{position:sticky;top:20px;padding:24px}
+.student-aside-icon{display:grid;place-items:center;width:43px;height:43px;background:var(--surface-3);border-radius:12px;color:var(--mint);margin-bottom:15px}
+.student-onboarding-aside h3{font-size:17px;margin-bottom:22px}
+.student-step-explanation{margin-bottom:18px;padding-left:13px;border-left:2px solid var(--stroke-strong)}
+.student-step-explanation strong{display:block;font-size:12px}
+.student-step-explanation p{font-size:12px;line-height:1.6;color:var(--muted);margin-top:6px}
+.student-aside-note{padding:12px;border-radius:11px;background:var(--surface-2);display:flex;gap:8px;align-items:start;font-size:11px;line-height:1.5;color:var(--muted)}
+.student-aside-note svg{flex:none;color:var(--mint)}
+.student-welcome-strip,.student-attendance-note{display:flex;align-items:center;gap:12px;line-height:1.6;font-size:12px;padding:13px 17px;border-radius:12px;background:var(--surface-2);border:1px solid var(--stroke)}
+.student-welcome-strip svg,.student-attendance-note svg{color:var(--mint);flex:none}
+.student-welcome-strip .status-tag{margin-left:auto}
+.student-app .student-stats-grid .stat-card{min-height:146px}
+.student-app .today-item{gap:12px}
+.student-app .today-item .status-tag{white-space:normal;text-align:center}
+.student-app .checkin-card{align-content:start}
+.student-checkin-hint{font-size:12px;color:var(--muted)}
+.student-confirm-checkin{display:grid;gap:12px;padding:14px;background:var(--surface-2);border:1px solid var(--stroke-strong);border-radius:11px;width:100%}
+.student-confirm-checkin p{font-size:12px}
+.student-confirm-checkin>div{display:flex;gap:8px;flex-wrap:wrap}
+.student-action-feedback{padding:13px 16px;border-radius:12px;display:flex;align-items:center;gap:11px;line-height:1.5;font-size:13px;border:1px solid var(--stroke);background:var(--surface-2)}
+.student-action-feedback.success{border-color:color-mix(in srgb,var(--mint) 45%,var(--stroke));color:var(--text)}
+.student-action-feedback.error{border-color:color-mix(in srgb,var(--red) 50%,var(--stroke));color:var(--text)}
+.student-action-feedback>span{color:var(--mint);display:grid;place-items:center}
+.student-action-feedback.error>span{color:var(--red)}
+.student-action-feedback button{margin-left:auto;border:0;background:none;color:inherit;font-size:22px}
+.student-pending-hint{display:block;color:var(--muted);margin-top:17px;font-size:11px;line-height:1.5}
+.login-page .student-journey{margin:4px 0 7px}
+.login-page .student-journey-step{padding:7px 9px;gap:5px;font-size:10px}
+.login-page .student-journey-number{height:18px;width:18px}
+.login-header{justify-content:flex-start;gap:13px}
+@media(max-width:980px){.student-profile-layout{grid-template-columns:1fr}.student-onboarding-aside .glass-card{position:static}.student-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:660px){.student-main{padding-top:22px}.student-journey{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.student-journey-step{font-size:11px;padding:8px}.student-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.student-welcome-strip{align-items:start;flex-wrap:wrap}.student-welcome-strip .status-tag{margin-left:0}.student-logout{margin-left:auto}.student-topbar .student-nav{justify-content:center}.student-topbar .student-nav a{padding:8px}.student-confirm-checkin>div{flex-direction:column}.student-confirm-checkin .btn{width:100%}}
+@media(prefers-reduced-motion:reduce){.student-topbar .student-nav a{transition:none!important}}

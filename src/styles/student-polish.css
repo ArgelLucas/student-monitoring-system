@@ -1,0 +1,251 @@
+/* StudentMonitor v5.10 — student workspace refinement.
+ * Loaded AFTER the existing theme and student styles. Scoped to student routes;
+ * does not modify admin screens, GitHub login, or authentication logic.
+ */
+.student-experience-v59 {
+  --student-ink: #17352f;
+  --student-accent: #096649;
+  --student-border: #dde6df;
+  --student-canvas: #f7f9f6;
+  background: var(--student-canvas);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+:root[data-theme='dark'] .student-experience-v59 {
+  --student-ink: #ecf5f0;
+  --student-accent: #95dec0;
+  --student-border: #35504a;
+  --student-canvas: #0e1b1c;
+}
+
+/* An app-level top bar, not a second marketing header. */
+.student-experience-v59 .student-v59-topbar {
+  height: 68px;
+  min-height: 68px;
+  padding: 0 clamp(18px, 3vw, 54px);
+  gap: clamp(12px, 2vw, 28px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--student-border);
+  backdrop-filter: none;
+}
+.student-experience-v59 .student-v59-topbar .brand { font-size: 16px; letter-spacing: -.5px; white-space: nowrap; }
+.student-experience-v59 .student-brand-logo { width: 35px; height: 35px; border-radius: 9px; }
+.student-experience-v59 .student-v59-desktop-nav {
+  border: 0; border-radius: 0; padding: 0; gap: clamp(8px, 1.6vw, 25px);
+  background: transparent; height: 100%;
+}
+.student-experience-v59 .student-v59-desktop-nav a {
+  height: 100%; min-height: auto; padding: 0 4px; border-radius: 0;
+  border-bottom: 2px solid transparent; background: transparent;
+  font-size: 12px; font-weight: 620; color: var(--muted);
+  transition: none;
+}
+.student-experience-v59 .student-v59-desktop-nav a:hover { color: var(--muted); background: transparent; }
+.student-experience-v59 .student-v59-desktop-nav a[aria-current='page'] {
+  background: transparent; border-bottom-color: var(--student-accent);
+  color: var(--text); box-shadow: none;
+}
+.student-v59-account {gap:10px}
+.student-v59-account-meta strong {font-size:12px;font-weight:720}
+.student-v59-account-meta small {font-size:10px}
+.student-experience-v59 .student-v59-account-avatar {width:32px;height:32px;background:#d8eee0;color:#164c3d}
+
+/* Logout is intentionally static. No hover color, lift, icon movement or shadow. */
+.student-experience-v59 .student-logout.student-static-action {
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:36px; padding:8px 4px 8px 16px; margin-left:9px;
+  border:0; border-left:1px solid var(--student-border); border-radius:0;
+  background:transparent; color:var(--muted); box-shadow:none;
+  font-family:inherit; font-size:11px; font-weight:680; cursor:pointer;
+  transform:none; transition:none;
+}
+.student-experience-v59 .student-logout.student-static-action:hover:not(:disabled),
+.student-experience-v59 .student-logout.student-static-action:active:not(:disabled) {
+  color:var(--muted); background:transparent; border-color:var(--student-border);
+  transform:none; box-shadow:none;
+}
+.student-experience-v59 .student-logout.student-static-action svg {transition:none;transform:none}
+
+/* Predictable neutral controls: no global lift, scaling or hover shadows. */
+.student-experience-v59 .btn:hover:not(:disabled),
+.student-experience-v59 .btn:active:not(:disabled),
+.student-experience-v59 button:hover:not(:disabled),
+.student-experience-v59 button:active:not(:disabled),
+.student-experience-v59 .glass-card:hover {
+  transform:none; box-shadow:none;
+}
+.student-experience-v59 .btn,
+.student-experience-v59 button {transition:none}
+.student-experience-v59 .btn.primary,
+.student-experience-v59 .student-record-submit,
+.student-experience-v59 .student-v59-action-primary,
+.student-experience-v59 .student-v59-checkin-button {
+  background:#084f40; border-color:#084f40; color:#fff;
+  transform:none; box-shadow:none; transition: background-color 180ms ease, border-color 180ms ease;
+}
+@media (hover:hover) {
+  .student-experience-v59 .btn.primary:hover:not(:disabled),
+  .student-experience-v59 .student-v59-action-primary:hover {
+    background:#063e33; border-color:#063e33; transform:none; box-shadow:none;
+  }
+}
+.student-experience-v59 .btn.subtle:hover:not(:disabled) {background:var(--surface-2);border-color:var(--stroke);color:var(--text);}
+.student-experience-v59 .btn.primary:active:not(:disabled),
+.student-experience-v59 .student-v59-action-primary:active {background:#032e26;border-color:#032e26;}
+.student-experience-v59 :is(button,a,input,select,textarea):focus-visible {
+  outline: 2px solid #168468;
+  outline-offset: 3px;
+}
+.student-experience-v59 .student-v59-action-quiet:hover {background:var(--surface-2);border-color:var(--stroke-strong)}
+.student-experience-v59 .student-v59-panel-link:hover {color:var(--mint);text-decoration:none}
+.student-experience-v59 .student-v59-profile-action:hover {border-color:var(--stroke)}
+.student-experience-v59 .student-v59-refresh:hover {background:var(--surface);border-color:var(--stroke-strong)}
+.student-experience-v59 .student-v59-next-bottom a:hover {background:rgba(255,255,255,.1)}
+
+.student-experience-v59 .student-v59-main {
+  max-width: 1380px;
+  min-height: calc(100vh - 68px);
+  padding: clamp(22px, 2.8vw, 42px) clamp(18px, 3vw, 54px) 50px;
+}
+.student-record-page {display:grid;gap:24px;min-width:0}
+.student-record-header {display:flex;align-items:flex-end;justify-content:space-between;gap:20px;min-width:0}
+.student-record-crumb {display:flex;gap:9px;align-items:center;color:var(--muted);font-size:10px;font-weight:760;letter-spacing:1.45px}
+.student-record-crumb svg {color:var(--faint)}
+.student-record-header h1 {margin:11px 0 7px;font-size:clamp(27px,2.6vw,39px);line-height:1.12;letter-spacing:-1.35px;font-weight:770;color:var(--text)}
+.student-record-period {color:var(--student-accent)}
+.student-record-header p {font-size:13px;line-height:1.55;color:var(--muted)}
+.student-record-state {
+  display:inline-flex;align-items:center;gap:7px;min-height:32px;flex:none;
+  border:1px solid var(--student-border);padding:7px 12px;
+  border-radius:8px;background:var(--surface);color:var(--muted);
+  font-size:11px;font-weight:710;
+}
+.student-record-state.is-approved {color:var(--student-accent);background:var(--surface)}
+.student-record-layout.student-profile-layout {grid-template-columns:minmax(0, 1.68fr) minmax(255px, .65fr);gap:18px;align-items:start;min-width:0}
+.student-experience-v59 .student-record-form-card.glass-card {
+  padding:0; max-width:none; overflow:hidden; background:var(--surface);
+  border:1px solid var(--student-border); border-radius:14px;
+  box-shadow:0 4px 16px rgba(15,61,46,.035);
+}
+.student-experience-v59 .student-record-form-card.glass-card:hover {border-color:var(--student-border);box-shadow:0 4px 16px rgba(15,61,46,.035)}
+.student-record-form-intro {display:flex;justify-content:space-between;gap:20px;padding:24px 28px 19px;border-bottom:1px solid var(--student-border)}
+.student-record-index {font-size:10px;letter-spacing:1.45px;font-weight:790;color:var(--student-accent)}
+.student-record-form-intro h2 {margin:6px 0 5px;font-size:20px;font-weight:750;letter-spacing:-.65px;color:var(--text)}
+.student-record-form-intro p {color:var(--muted);font-size:12px;line-height:1.5}
+.student-record-counter {color:var(--faint);font-size:11px;font-weight:700;white-space:nowrap}
+.student-record-form {display:grid;gap:0}
+.student-record-section {border:0;margin:0;padding:25px 28px 26px;min-width:0}
+.student-record-section + .student-record-section {border-top:1px solid var(--student-border)}
+.student-record-section-legend {float:left;width:100%;display:flex;align-items:center;gap:10px;margin:0 0 17px;font-size:13px;font-weight:760;color:var(--text)}
+.student-record-section-legend span {display:inline-grid;place-items:center;border:1px solid var(--student-border);width:28px;height:28px;border-radius:7px;font-size:10px;font-weight:800;color:var(--student-accent);background:var(--surface-2)}
+.student-record-section-caption {clear:both;font-size:11px;line-height:1.55;color:var(--muted);margin:0 0 17px}
+.student-record-fields {clear:both;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px 19px;min-width:0}
+.student-record-github-field {grid-column:1/-1;max-width:100%}
+.student-record-fields .field-label {min-width:0;display:grid;align-content:start;gap:6px;font-size:12px;font-weight:610;color:var(--text)}
+.student-record-fields .field-label>span {font-weight:650}
+.student-record-fields .field-label em {font-style:normal;color:#b25252}
+.student-experience-v59 .student-record-fields input,
+.student-experience-v59 .student-record-fields select {
+  width:100%;min-width:0;height:43px;border-radius:8px;
+  background:var(--surface);border:1px solid var(--stroke-strong);
+  color:var(--text);padding:0 13px;font-size:13px;font-weight:450;
+  box-shadow:none;transition:border-color 140ms ease;
+}
+.student-experience-v59 .student-record-fields input:focus,
+.student-experience-v59 .student-record-fields select:focus {border-color:#168468;box-shadow:none}
+.student-experience-v59 .student-record-fields input:disabled,
+.student-experience-v59 .student-record-fields select:disabled {background:var(--surface-2);color:var(--muted);opacity:1;cursor:not-allowed}
+.student-record-fields .student-field-hint {font-size:10px;color:var(--muted);line-height:1.4}
+.student-experience-v59 .student-verified-input {
+  border:1px solid var(--stroke-strong);border-radius:8px;padding:0 11px;
+  background:var(--surface-2);color:var(--student-accent)
+}
+.student-experience-v59 .student-verified-input input {height:42px;border:0;outline:none;background:transparent;color:var(--text);padding-left:2px}
+.student-record-submit-bar {display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-top:1px solid var(--student-border);background:color-mix(in srgb,var(--surface-2) 60%,var(--surface))}
+.student-record-submit-bar p {display:flex;align-items:flex-start;gap:8px;color:var(--muted);font-size:11px;line-height:1.5;max-width:370px}
+.student-record-submit-bar p svg {flex:none;color:var(--student-accent);margin-top:1px}
+.student-experience-v59 .student-record-submit {padding:11px 17px;font-size:12px;min-height:41px;border-radius:8px;flex:none}
+
+/* Right column describes the current student record instead of repeating onboarding. */
+.student-record-sidebar {display:grid;gap:14px;min-width:0}
+.student-record-summary {border:1px solid var(--student-border);background:var(--surface);border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(15,61,46,.025)}
+.student-record-summary-header {display:flex;align-items:center;justify-content:space-between;gap:9px;padding:22px 22px 16px;color:var(--student-accent)}
+.student-record-summary-header span {font-size:10px;font-weight:780;letter-spacing:1.4px}
+.student-record-identity {display:flex;align-items:center;gap:12px;margin:0 22px 20px;min-width:0}
+.student-record-monogram {width:44px;height:44px;flex:none;border-radius:10px;background:#dbeee3;display:grid;place-items:center;color:#145641;font-size:15px;font-weight:770}
+.student-record-identity>div {display:grid;gap:4px;min-width:0}
+.student-record-identity strong {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:740}
+.student-record-identity>div span {font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.student-record-summary-list {margin:0 22px 20px;padding:0}
+.student-record-summary-list div {display:flex;justify-content:space-between;gap:11px;padding:11px 0;border-top:1px solid var(--student-border);font-size:11px;line-height:1.5}
+.student-record-summary-list dt {color:var(--muted)}
+.student-record-summary-list dd {margin:0;text-align:right;font-weight:730;color:var(--text);overflow-wrap:anywhere;max-width:60%}
+.student-record-summary-footer {display:flex;align-items:flex-start;gap:9px;padding:16px 22px;background:var(--surface-2);color:var(--muted);font-size:11px;line-height:1.5}
+.student-record-summary-footer svg {flex:none;color:var(--student-accent)}
+.student-record-guidance {border:1px solid var(--student-border);border-radius:14px;background:transparent;padding:22px}
+.student-record-guidance h3 {margin:8px 0 9px;font-size:17px;letter-spacing:-.35px;font-weight:750}
+.student-record-guidance p {color:var(--muted);font-size:12px;line-height:1.75}
+.student-record-guidance a {margin-top:18px;display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--student-accent);font-size:11px}
+.student-record-guidance a:hover {text-decoration:none}
+
+/* Make the dashboard and attendance surfaces match the updated profile. */
+.student-experience-v59 .student-v59-hero-copy,
+.student-experience-v59 .student-v59-next,
+.student-experience-v59 .student-v59-panel,
+.student-experience-v59 .student-v59-metric,
+.student-experience-v59 .student-v59-checkin {border-radius:13px;box-shadow:none}
+.student-experience-v59 .student-v59-hero-copy,
+.student-experience-v59 .student-v59-panel {border:1px solid var(--student-border)}
+.student-experience-v59 .student-v59-hero-copy h1 {font-size:clamp(28px,2.8vw,39px);font-weight:780;letter-spacing:-1.1px}
+.student-experience-v59 .student-v59-panel-icon,
+.student-experience-v59 .student-v59-metric-icon {border-radius:9px}
+.student-experience-v59 .student-v59-metric {border-color:var(--student-border)}
+.student-experience-v59 .student-v59-session,
+.student-experience-v59 .student-v59-week-row {border-color:var(--student-border)}
+.student-experience-v59 .student-v59-action-primary,
+.student-experience-v59 .student-v59-action-quiet {border-radius:8px}
+.student-experience-v59 .student-v59-next {background:#0b4c3c}
+.student-experience-v59 .student-v59-next::before {display:none}
+.student-experience-v59 .student-v59-footer {max-width:1380px;color:var(--faint)}
+
+@media(max-width:1110px) {
+  .student-record-layout.student-profile-layout {grid-template-columns:minmax(0,1.3fr) minmax(225px,.55fr)}
+  .student-experience-v59 .student-v59-topbar {padding:0 22px}
+  .student-v59-account-meta {display:none}
+}
+@media(max-width:860px) {
+  .student-record-layout.student-profile-layout {grid-template-columns:minmax(0,1fr)}
+  .student-record-sidebar {grid-template-columns:1fr 1fr;align-items:start}
+  .student-experience-v59 .student-v59-desktop-nav {gap:8px}
+  .student-experience-v59 .student-v59-desktop-nav a {font-size:11px}
+}
+@media(max-width:660px) {
+  .student-experience-v59 .student-v59-topbar {height:63px;min-height:63px;padding:0 16px}
+  .student-experience-v59 .student-v59-topbar .brand {font-size:14px}
+  .student-experience-v59 .student-brand-logo {width:32px;height:32px}
+  .student-experience-v59 .student-v59-main {min-height:calc(100vh - 63px);padding:20px 15px calc(100px + env(safe-area-inset-bottom))}
+  .student-experience-v59 .student-logout.student-static-action {margin-left:0;padding:8px;border-left:0;min-height:36px;min-width:36px}
+  .student-record-page {gap:17px}
+  .student-record-header {align-items:start;flex-direction:column;gap:14px}
+  .student-record-header h1 {font-size:30px;margin:9px 0 7px}
+  .student-record-header p {font-size:12px}
+  .student-record-layout.student-profile-layout {gap:13px}
+  .student-record-sidebar {grid-template-columns:1fr}
+  .student-experience-v59 .student-record-form-card.glass-card {padding:0}
+  .student-record-form-intro {padding:20px 18px 16px}
+  .student-record-section {padding:22px 18px}
+  .student-record-fields {gap:15px 13px}
+  .student-record-fields .field-label {font-size:11px}
+  .student-record-submit-bar {padding:17px 18px;align-items:stretch;flex-direction:column;gap:12px}
+  .student-experience-v59 .student-record-submit {width:100%}
+  .student-record-summary-list div {font-size:12px}
+}
+@media(max-width:410px) {
+  .student-record-fields {grid-template-columns:1fr}
+  .student-record-personal .field-label:nth-child(5) {grid-column:auto}
+  .student-record-github-field {grid-column:auto}
+  .student-record-state {font-size:10px}
+  .student-record-crumb {letter-spacing:1px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .student-experience-v59 :is(button,a,input,select) {scroll-behavior:auto;transition:none!important;animation:none!important}
+}

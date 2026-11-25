@@ -1,0 +1,98 @@
+
+> student-monitoring-system@0.3.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: schedule formatting uses correct class clock labels
+ok 1 - schedule formatting uses correct class clock labels
+  ---
+  duration_ms: 2.793722
+  type: 'test'
+  ...
+# Subtest: Philippine time determines class occurrence
+ok 2 - Philippine time determines class occurrence
+  ---
+  duration_ms: 35.204486
+  type: 'test'
+  ...
+# Subtest: student display waits for admin window and records only matching check-ins
+ok 3 - student display waits for admin window and records only matching check-ins
+  ---
+  duration_ms: 6.619602
+  type: 'test'
+  ...
+# Subtest: all 14 instructor meetings are seeded once in new migration
+ok 4 - all 14 instructor meetings are seeded once in new migration
+  ---
+  duration_ms: 0.791194
+  type: 'test'
+  ...
+# Subtest: SQL removes unrestricted endpoint and gates every attendance write
+ok 5 - SQL removes unrestricted endpoint and gates every attendance write
+  ---
+  duration_ms: 2.544795
+  type: 'test'
+  ...
+# Subtest: HTML content is escaped before insertion into string templates
+ok 6 - HTML content is escaped before insertion into string templates
+  ---
+  duration_ms: 1.675155
+  type: 'test'
+  ...
+# Subtest: GitHub handle normalization supports profile URLs
+ok 7 - GitHub handle normalization supports profile URLs
+  ---
+  duration_ms: 1.380198
+  type: 'test'
+  ...
+# Subtest: Manila date string has YYYY-MM-DD format
+ok 8 - Manila date string has YYYY-MM-DD format
+  ---
+  duration_ms: 36.167567
+  type: 'test'
+  ...
+# Subtest: SQL guards exist for each sensitive operation (static contract)
+ok 9 - SQL guards exist for each sensitive operation (static contract)
+  ---
+  duration_ms: 0.500441
+  type: 'test'
+  ...
+# Subtest: attendance report counts only approved students in matching class and window
+ok 10 - attendance report counts only approved students in matching class and window
+  ---
+  duration_ms: 10.03486
+  type: 'test'
+  ...
+# Subtest: report date, section and subject filters do not leak other sections
+ok 11 - report date, section and subject filters do not leak other sections
+  ---
+  duration_ms: 0.634891
+  type: 'test'
+  ...
+# Subtest: CSV export quotes cells and neutralizes spreadsheet formulas
+ok 12 - CSV export quotes cells and neutralizes spreadsheet formulas
+  ---
+  duration_ms: 0.486684
+  type: 'test'
+  ...
+# Subtest: admin navigation screens support approvals, schedule controls, report and activity log
+ok 13 - admin navigation screens support approvals, schedule controls, report and activity log
+  ---
+  duration_ms: 20.178333
+  type: 'test'
+  ...
+# Subtest: admin assignment migration validates admin and class pairing
+ok 14 - admin assignment migration validates admin and class pairing
+  ---
+  duration_ms: 1.611112
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 155.678745

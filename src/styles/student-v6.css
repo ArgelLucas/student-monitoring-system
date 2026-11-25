@@ -1,0 +1,126 @@
+/* StudentMonitor v6 — scoped student workspace enhancements.
+ * Deliberately restrained controls: no bouncing, hover translation, magnetic
+ * effects or continuous GSAP animations. Admin and login styles are unchanged.
+ */
+.student-experience-v59 .student-v6-sync {
+  display:flex;align-items:center;gap:8px;justify-content:flex-end;
+  padding:3px 2px 9px;color:var(--muted);font-size:11px;min-height:26px;
+  font-variant-numeric:tabular-nums;
+}
+.student-experience-v59 .student-v6-sync .student-v59-live-dot {width:6px;height:6px;flex:none}
+.student-experience-v59 .student-v6-system-notice {
+  display:flex;align-items:center;gap:12px;padding:11px clamp(16px,3vw,50px);
+  background:color-mix(in srgb,#fcf0d8 70%,var(--surface));color:#6b4310;
+  font-size:12px;line-height:1.5;border-bottom:1px solid #ead6b2;
+}
+.student-v6-system-notice svg{flex:none}
+.student-v6-system-notice span{flex:1}
+.student-v6-system-notice button{color:#503508;font-weight:700;text-decoration:underline;padding:7px;border:0;background:transparent}
+.student-v6-next-day {
+  color:#e4f4e9;font-size:12px;font-weight:700;
+}
+.student-v6-next-explainer {
+  color:#d3ebe1!important;font-size:11px;line-height:1.5;
+  margin:13px 0 0!important;
+}
+/* Four compact metrics at wide sizes; step down gracefully. */
+.student-experience-v59 .student-v59-metrics {grid-template-columns:repeat(4,minmax(0,1fr))}
+.student-v6-weekday-tabs {
+  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;
+  margin:6px 0 16px;
+}
+.student-experience-v59 .student-v6-weekday-tabs button {
+  display:grid;place-items:center;gap:4px;min-height:48px;padding:8px 4px;
+  border:1px solid var(--student-border);border-radius:9px;
+  color:var(--muted);background:var(--surface);font-size:11px;font-weight:690;
+  cursor:pointer;box-shadow:none;transform:none;transition:background-color 160ms ease,border-color 160ms ease;
+}
+.student-experience-v59 .student-v6-weekday-tabs button.selected {
+  background:color-mix(in srgb,var(--student-accent) 9%,var(--surface));
+  border-color:var(--student-accent);color:var(--text);
+}
+.student-v6-day-today {font-size:9px;font-weight:700;color:var(--student-accent)}
+.student-v6-day-schedule {display:grid;gap:0;border:1px solid var(--student-border);border-radius:10px;overflow:hidden}
+.student-v6-day-session {
+  display:flex;align-items:center;gap:18px;padding:16px 18px;min-width:0;
+  border-bottom:1px solid var(--student-border);font-size:12px;
+}
+.student-v6-day-session:last-child {border-bottom:0}
+.student-v6-day-session>div {flex:1;min-width:0;display:grid;gap:4px}
+.student-v6-day-session>div strong {font-size:13px}
+.student-v6-day-session>div small {color:var(--muted);font-size:11px}
+.student-v6-day-clock {white-space:nowrap;font-weight:680;font-variant-numeric:tabular-nums;min-width:150px}
+.student-v6-recent {margin-top:20px;padding-top:17px;border-top:1px solid var(--student-border)}
+.student-v6-recent-header {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.student-v6-recent-header h3 {font-size:13px;font-weight:730;margin:0}
+.student-v6-recent-header a {display:inline-flex;align-items:center;gap:6px;color:var(--student-accent);font-size:11px;font-weight:700}
+.student-v6-recent>p {font-size:11px;color:var(--muted);padding:10px 0}
+.student-v6-recent-row {display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--student-border);font-size:11px}
+.student-v6-recent-row span:first-child {flex:1;font-weight:690}
+.student-v6-recent-row time {color:var(--muted);font-variant-numeric:tabular-nums}
+.student-v6-profile-summary {padding:16px 27px 28px}
+.student-v6-profile-header {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 22px}
+.student-experience-v59 .student-v6-edit,.student-experience-v59 .student-v6-edit-cancel {
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:1px solid var(--student-border);border-radius:9px;
+  background:var(--surface-2);color:var(--text);font-size:12px;font-weight:690;
+  min-height:39px;padding:9px 13px;cursor:pointer;
+  box-shadow:none;transform:none;transition:none;
+}
+.student-v6-readonly-grid {margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.student-v6-readonly-grid div {padding:15px 0;border-bottom:1px solid var(--student-border);min-width:0}
+.student-v6-readonly-grid dt {color:var(--muted);font-size:11px;margin-bottom:7px}
+.student-v6-readonly-grid dd {color:var(--text);margin:0;font-size:14px;font-weight:720;overflow-wrap:anywhere}
+.student-v6-profile-lock {display:flex;align-items:center;gap:9px;margin-top:18px;font-size:11px;color:var(--muted);line-height:1.5}
+.student-v6-profile-lock svg{flex:none;color:var(--student-accent)}
+.student-v6-profile-actions {display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.student-v6-receipt {
+  display:flex;align-items:flex-start;gap:13px;border:1px solid #91c9a8;
+  border-radius:12px;padding:17px 19px;background:color-mix(in srgb,#d5f3de 68%,var(--surface));
+  color:#144633;font-size:12px;
+}
+.student-v6-receipt>svg{flex:none;color:#16805d}
+.student-v6-receipt>div {flex:1;min-width:0;display:grid;gap:5px}
+.student-v6-receipt strong{font-weight:780;font-size:14px}
+.student-v6-receipt p,.student-v6-receipt small{margin:0;overflow-wrap:anywhere;line-height:1.5}
+.student-v6-receipt button{border:0;background:transparent;color:inherit;min-height:28px;min-width:28px;font-size:20px;cursor:pointer}
+.student-v6-checkin-state-explanation{margin:0;font-size:11px;line-height:1.55;color:var(--muted)}
+.student-v6-history-toolbar {display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:0 0 16px}
+.student-v6-history-toolbar label{font-size:11px;font-weight:690;color:var(--muted)}
+.student-experience-v59 .student-v6-history-toolbar select {
+  min-width:170px;max-width:100%;min-height:39px;border:1px solid var(--student-border);
+  border-radius:8px;padding:8px 11px;background:var(--surface);color:var(--text);font-size:12px;
+}
+.student-v6-history-groups {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.student-v6-history-group{border:1px solid var(--student-border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.student-v6-history-group-head{display:flex;justify-content:space-between;gap:8px;padding:12px 14px;background:var(--surface-2);font-size:12px}
+.student-v6-history-group-head span{font-size:10px;color:var(--muted)}
+.student-v6-history-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 14px;border-top:1px solid var(--student-border)}
+.student-v6-history-item>div{display:grid;gap:4px}
+.student-v6-history-item strong{font-size:11px;font-weight:720}
+.student-v6-history-item small{font-size:10px;color:var(--muted)}
+.student-experience-v59 .student-v6-show-more{display:block;margin:18px auto 0;padding:11px 18px;min-height:42px;background:var(--surface-2);border:1px solid var(--student-border);border-radius:9px;color:var(--text);font-size:12px;font-weight:690;cursor:pointer}
+.student-experience-v59 .student-v6-weekday-tabs button:hover,
+.student-experience-v59 .student-v6-edit:hover,
+.student-experience-v59 .student-v6-edit-cancel:hover,
+.student-experience-v59 .student-v6-show-more:hover {box-shadow:none;transform:none}
+.student-experience-v59 :is(button,a,input,select):focus-visible{outline:3px solid #199274;outline-offset:3px}
+@media (max-width:1100px){.student-experience-v59 .student-v59-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:820px){.student-v6-history-groups{grid-template-columns:1fr}.student-v6-readonly-grid{gap:0 16px}}
+@media (max-width:540px){
+  .student-experience-v59 .student-v59-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .student-v6-profile-summary{padding:14px 18px 22px}
+  .student-v6-readonly-grid{grid-template-columns:1fr}
+  .student-v6-profile-header{align-items:flex-start;flex-direction:column}
+  .student-v6-weekday-tabs{grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .student-experience-v59 .student-v6-weekday-tabs button{min-height:48px;padding:7px 1px;font-size:10px}
+  .student-v6-day-today{font-size:8px}
+  .student-v6-day-session{flex-wrap:wrap;gap:7px 12px;padding:12px}
+  .student-v6-day-clock{min-width:0;flex-basis:100%}
+  .student-v6-history-toolbar{justify-content:space-between}
+  .student-v6-system-notice{flex-wrap:wrap}
+}
+@media (max-width:360px){.student-experience-v59 .student-v59-metrics{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){
+  .student-experience-v59 .student-v6-weekday-tabs button{transition:none!important}
+}

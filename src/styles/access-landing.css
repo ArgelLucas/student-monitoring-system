@@ -1,0 +1,281 @@
+/* StudentMonitor v5.8 — full-viewport student access.
+   Standalone screen: NO external top header, outer card margin, or footer.
+   These selectors are scoped to .access-page and do not restyle the admin app.
+*/
+.access-page {
+  --access-ink: #142820;
+  --access-forest: #082e25;
+  --access-green: #087657;
+  --access-mint: #baf3c7;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  display: block;
+  background: #fff;
+  color: var(--access-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: clip;
+}
+.access-page *, .access-page *::before, .access-page *::after { box-sizing: border-box; }
+.access-frame {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  background: #fff;
+}
+.access-editorial {
+  position: relative;
+  min-width: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  color: #f9fffa;
+  background: var(--access-forest);
+  padding: clamp(28px, 4.2vw, 70px) clamp(28px, 6vw, 105px) clamp(28px, 4.2vw, 70px);
+  isolation: isolate;
+}
+.access-editorial::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: min(55vw, 670px);
+  aspect-ratio: 1;
+  right: -32%;
+  bottom: -34%;
+  border: 1px solid rgba(199,247,213,.12);
+  border-radius: 50%;
+  box-shadow: 0 0 0 85px rgba(180,234,192,.032), 0 0 0 176px rgba(180,234,192,.024);
+  pointer-events: none;
+}
+.access-editorial-top, .access-editorial-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.access-brand { display: inline-flex; align-items: center; gap: 13px; min-width: 0; font-size: clamp(17px, 1.45vw, 22px); font-weight: 780; letter-spacing: -.65px; color: #f7fff9; }
+.access-brand img { display: block; width: 43px; height: 43px; object-fit: contain; border-radius: 11px; flex: none; }
+.access-brand-dot { color: #9fe8b7; }
+.access-editorial-index { font-size: 11px; color: #85baa0; letter-spacing: 1.2px; font-weight: 650; white-space: nowrap; }
+.access-editorial-core { width: 100%; max-width: 520px; margin: 40px 0; }
+.access-pattern { width: 118px; height: 100px; position: relative; margin-bottom: clamp(30px, 5vh, 54px); border: 1px solid rgba(167,234,186,.34); border-radius: 15px; background: rgba(197,250,211,.055); overflow: hidden; }
+.access-pattern-index { position: absolute; top: 13px; left: 15px; font-size: 10px; color: #96d0a8; letter-spacing: .65px; }
+.access-pattern-line { display: block; position: absolute; left: 15px; height: 7px; border-radius: 3px; background: #a8dfb8; }
+.access-pattern-line-one { top: 39px; width: 27px; opacity: .85; }
+.access-pattern-line-two { top: 55px; width: 52px; opacity: .67; }
+.access-pattern-line-three { top: 71px; width: 73px; opacity: .48; }
+.access-pattern-tick { position: absolute; height: 13px; width: 13px; top: 31px; right: 16px; border-radius: 50%; background: #baf3c7; box-shadow: 0 0 0 5px rgba(186,243,199,.11); }
+.access-editorial-kicker { color: #a8d7b4; font-weight: 740; font-size: 11px; letter-spacing: 1.65px; margin: 0 0 20px; }
+.access-editorial h1 { color: #fbfff9; font-size: clamp(48px, 5.1vw, 84px); font-weight: 720; letter-spacing: -.048em; line-height: 1.045; margin: 0; }
+.access-editorial h1 span { color: #baf3c7; }
+.access-editorial-copy { max-width: 410px; margin: 26px 0 0; color: #b9d1c4; font-size: clamp(14px, 1.15vw, 17px); font-weight: 400; line-height: 1.75; }
+.access-editorial-bottom { justify-content: flex-start; color: #9bc2ab; font-size: 11px; letter-spacing: 1.15px; font-weight: 600; }
+.access-editorial-rule { width: 28px; height: 1px; background: #74b28e; flex: none; }
+.access-signin {
+  min-width: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(28px, 4.2vw, 70px) clamp(28px, 6vw, 105px) clamp(28px, 4.2vw, 70px);
+  background: #fff;
+}
+.access-signin-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.access-overline { color: var(--access-green); font-size: 11px; font-weight: 760; letter-spacing: 1.65px; }
+.access-signin-number { color: #aabbb0; font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.access-signin-number span { margin: 0 5px; color: #cbd3cc; }
+.access-signin-content { max-width: 410px; width: 100%; margin: 38px auto; }
+.access-book-icon { width: 54px; height: 54px; display: grid; place-items: center; background: #e7f5e9; color: #087052; border-radius: 15px; margin-bottom: 30px; }
+.access-signin h2 { margin: 0; color: #142a21; font-size: clamp(31px, 3.15vw, 48px); font-weight: 750; letter-spacing: -.045em; line-height: 1.12; }
+.access-signin-copy { color: #63796b; font-size: 15px; line-height: 1.75; margin: 20px 0 30px; }
+/* GitHub OAuth button: color-only interaction; no movement or hover GSAP. */
+.access-github-button {
+  width: 100%;
+  min-height: 59px;
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #084F40;
+  border-radius: 11px;
+  color: #fff;
+  background-color: #084F40;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: none;
+  transform: none;
+  transition: background-color 180ms ease;
+}
+.access-github-button span { flex: 1; text-align: left; }
+.access-github-button svg { transform: none; transition: none; }
+/* Only hover-capable devices get a hover state (avoid sticky touch hover). */
+@media (hover: hover) {
+  .access-github-button:hover:not(:disabled) {
+    background-color: #063E33;
+  }
+}
+/* Pointer/touch press state; keep after hover so it takes precedence. */
+.access-github-button:active:not(:disabled) {
+  background-color: #032E26;
+}
+.access-github-button:disabled { cursor: progress; opacity: .72; }
+.access-page button:focus-visible { outline: 3px solid #9be7b9; outline-offset: 4px; }
+.access-page .access-github-button:focus-visible {
+  outline: 3px solid #087657;
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .access-github-button { transition: none; }
+}
+.access-privacy { display: flex; align-items: flex-start; gap: 9px; color: #748779; font-size: 12px; line-height: 1.55; margin: 17px 0 0; }
+.access-privacy svg { flex: none; margin-top: 2px; }
+.access-signin-bottom { border-top: 1px solid #e4ebe5; padding-top: 18px; font-size: 12px; }
+.access-signin-bottom div { display: flex; align-items: center; gap: 9px; color: #263d32; font-weight: 720; }
+.access-bottom-dot { width: 7px; height: 7px; border-radius: 50%; background: #159a6f; }
+.access-signin-bottom p { color: #728579; font-size: 12px; line-height: 1.65; margin: 6px 0 0 16px; }
+.access-signin .alert { display: flex; gap: 8px; background: #fff0ee; color: #893b37; border: 1px solid #f2c5bf; border-radius: 10px; padding: 11px 13px; font-size: 12px; margin-bottom: 14px; }
+.access-signin .alert .icon-btn { color: #893b37; background: transparent; }
+@media (max-width: 1000px) {
+  .access-editorial, .access-signin { padding: 34px clamp(24px, 4vw, 48px); }
+  .access-editorial h1 { font-size: clamp(46px, 5vw, 62px); }
+  .access-signin h2 { font-size: clamp(30px, 3.7vw, 40px); }
+}
+@media (max-width: 800px) {
+  .access-frame { grid-template-columns: 1fr; }
+  .access-editorial { min-height: 280px; padding: 26px 26px 30px; }
+  .access-editorial-top { margin-bottom: 20px; }
+  .access-editorial-core { margin: 0; }
+  .access-pattern { display: none; }
+  .access-editorial-kicker { font-size: 10px; margin-bottom: 9px; }
+  .access-editorial h1 { font-size: clamp(38px, 7vw, 54px); }
+  .access-editorial-copy { margin-top: 12px; max-width: 460px; font-size: 13px; }
+  .access-editorial-bottom { display: none; }
+  .access-signin { min-height: 480px; padding: 32px 26px; }
+  .access-signin-content { margin: 24px auto; }
+}
+@media (max-width: 480px) {
+  .access-editorial { min-height: 250px; padding: 22px 22px 26px; }
+  .access-brand { font-size: 17px; }
+  .access-brand img { width: 36px; height: 36px; }
+  .access-editorial-index { font-size: 9px; }
+  .access-editorial h1 { font-size: 40px; }
+  .access-signin { min-height: 460px; padding: 27px 22px 30px; }
+  .access-book-icon { width: 45px; height: 45px; margin-bottom: 21px; }
+  .access-signin h2 { font-size: 32px; }
+  .access-signin-copy { font-size: 13px; margin: 14px 0 22px; }
+  .access-github-button { min-height: 54px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .access-page *, .access-page *::before, .access-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* ============================================================
+   v5.8.1 — viewport-locked access screen
+   Only applies while the login component is mounted.
+   No outer document scrolling; a short/narrow device can still
+   scroll the sign-in panel internally so the login remains usable.
+   ============================================================ */
+html.sm-access-locked,
+body.sm-access-locked {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.access-page {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.access-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.access-editorial,
+.access-signin {
+  height: 100%;
+  min-height: 0;
+}
+.access-editorial-core {
+  margin-block: 14px;
+}
+.access-signin-content {
+  margin-block: 12px;
+}
+/* Protect the essential sign-in button from being clipped on
+   small laptops, large text, or browser zoom. */
+.access-signin {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-height: 700px) and (min-width: 801px) {
+  .access-editorial, .access-signin {
+    padding-block: 22px;
+  }
+  .access-editorial-core { margin-block: 8px; }
+  .access-pattern {
+    width: 94px;
+    height: 80px;
+    margin-bottom: 18px;
+  }
+  .access-editorial h1 { font-size: clamp(36px, 4.3vw, 64px); }
+  .access-editorial-copy { margin-top: 14px; line-height: 1.5; }
+  .access-book-icon { margin-bottom: 12px; width: 46px; height: 46px; }
+  .access-signin h2 { font-size: clamp(28px, 3vw, 42px); }
+  .access-signin-copy { margin-block: 12px 18px; line-height: 1.45; }
+  .access-signin-bottom { padding-top: 10px; }
+}
+
+@media (max-width: 800px) {
+  .access-frame {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 32%) minmax(0, 68%);
+  }
+  .access-editorial, .access-signin { height: 100%; min-height: 0; }
+  .access-editorial {
+    padding: clamp(14px, 3vh, 24px) clamp(18px, 5vw, 28px);
+  }
+  .access-editorial-top { margin: 0; }
+  .access-editorial-core { margin: 8px 0 0; }
+  .access-editorial-kicker { margin-bottom: 6px; }
+  .access-editorial h1 { font-size: clamp(30px, 5.8vw, 44px); line-height: 1.04; }
+  .access-editorial-copy { font-size: 12px; line-height: 1.4; margin-top: 7px; }
+  .access-signin {
+    padding: clamp(18px, 3vh, 28px) clamp(18px, 5vw, 28px);
+    gap: 8px;
+  }
+  .access-signin-content { margin: 8px auto; }
+  .access-book-icon { width: 42px; height: 42px; margin-bottom: 13px; }
+  .access-signin h2 { font-size: clamp(27px, 5.5vw, 35px); }
+  .access-signin-copy { margin: 10px 0 16px; line-height: 1.45; }
+  .access-github-button { min-height: 48px; }
+  .access-privacy { margin-top: 10px; }
+  .access-signin-bottom { padding-top: 10px; }
+  .access-signin-bottom p { line-height: 1.35; }
+}
+@media (max-width: 480px) {
+  .access-editorial h1 { font-size: clamp(28px, 8vw, 38px); }
+  .access-editorial-copy { max-width: 320px; }
+  .access-brand { font-size: 15px; }
+  .access-brand img { height: 32px; width: 32px; }
+  .access-signin h2 { font-size: clamp(26px, 7vw, 32px); }
+  .access-signin-copy { font-size: 12px; }
+  .access-signin-bottom { font-size: 11px; }
+}
+@media (max-height: 580px) and (max-width: 800px) {
+  .access-frame { grid-template-rows: minmax(0, 26%) minmax(0, 74%); }
+  .access-editorial { padding-block: 12px; }
+  .access-editorial h1 { font-size: clamp(24px, 6vw, 30px); }
+  .access-editorial-copy, .access-editorial-kicker { display: none; }
+  .access-signin { padding-block: 12px; }
+  .access-book-icon { display: none; }
+}
