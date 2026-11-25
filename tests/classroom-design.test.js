@@ -21,7 +21,7 @@ test('compact sidebar and bento layout remain at full desktop width',()=>{
 test('approval preview uses secure RPC and class window list uses actual Supabase schedules',()=>{
   const source=read('src/pages/AdminPages.jsx');
   assert.match(source,/set_student_approval/);
-  assert.match(source,/await perform\(\(\)=>rpc\('set_student_approval'/);
+  assert.match(source,/await perform\(\(\)\s*=>\s*rpc\(["']set_student_approval["']/s);
   assert.match(source,/pending\.slice/);
   assert.match(source,/todays\.map\(s=>/);
   assert.match(source,/data\.audit\.slice/);
