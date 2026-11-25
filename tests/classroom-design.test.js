@@ -23,7 +23,7 @@ test('approval preview uses secure RPC and class window list uses actual Supabas
   assert.match(source,/set_student_approval/);
   assert.match(source,/await perform\(\(\)\s*=>\s*rpc\(["']set_student_approval["']/s);
   assert.match(source,/pending\.slice/);
-  assert.match(source,/todays\.map\(s=>/);
+  assert.match(source,/todays\.map\(\s*\(?\s*s\s*\)?\s*=>/);
   assert.match(source,/data\.audit\.slice/);
   assert.doesNotMatch(source,/value:\s*248|value:\s*217/);
 });
