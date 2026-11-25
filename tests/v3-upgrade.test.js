@@ -6,7 +6,7 @@ import { adminStudentsScreen, adminClassesScreen, adminReportsScreen, adminAudit
 
 const migration = readFileSync(new URL('../supabase/migrations/202611250003_admin_reporting.sql', import.meta.url),'utf8');
 const api = readFileSync(new URL('../src/lib/api.js', import.meta.url),'utf8');
-const main = readFileSync(new URL('../src/main.js', import.meta.url),'utf8');
+const adminReact = readFileSync(new URL('../src/pages/AdminPages.jsx', import.meta.url),'utf8');
 const data = {
   sections:[{id:1,code:'1A'},{id:2,code:'2B'}],
   subjects:[{id:11,code:'CT 123a'},{id:12,code:'CT 223a'}],
@@ -60,6 +60,6 @@ test('admin assignment migration validates admin and class pairing',()=>{
   assert.match(migration,/public\.student_profiles/);
   assert.match(migration,/public\.audit_logs/);
   assert.match(migration,/REVOKE ALL ON FUNCTION public\.admin_update_student_assignment/);
-  assert.match(main,/rpc\('admin_update_student_assignment'/);
+  assert.match(adminReact,/rpc\(["']admin_update_student_assignment["']/);
   assert.match(api,/fetchPaged/);
 });
