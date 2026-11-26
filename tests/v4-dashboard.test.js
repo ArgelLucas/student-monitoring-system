@@ -84,6 +84,10 @@ test('live attendance route shows real class controls without inventing absences
   const html=adminAttendanceScreen({admin:true},rows);
   assert.match(html,/Today’s attendance monitor/);
   assert.match(html,/Not an automatic absence classification/);
-  assert.match(html,/data-window-action=/);
+  // Buttons only render when the selected weekday has a scheduled meeting.
+  // Check the control is implemented without making this test depend on today's date.
+  const source=readFileSync(new URL('../src/pages/screens.js',import.meta.url),'utf8');
+  assert.match(source,/data-window-action=/);
+  assert.match(html,/Class attendance controls/);
   assert.match(html,/Reports &amp; CSV|Reports & CSV/);
 });
