@@ -62,6 +62,10 @@ export function studentClassStatus(schedule, data, clock, now = new Date()) {
     record => Number(record.attendance_window_id) === Number(window.id)
   ));
   if (recorded) return { key: 'recorded', label: 'Check-in recorded', tone: 'good', canCheckIn: false, window };
+  // An active administrator-created exception may open on another weekday.
+  // Backend validates admin approval, section, time limit and the actual window.
+  if (window?.is_override && windowIsOpen(window, now))
+    return { key: 'open', label: 'Extra check-in open', tone: 'good', canCheckIn: true, window };
   if (Number(schedule.weekday) !== clock.weekday) return { key: 'other-day', label: 'Not today', tone: 'muted', canCheckIn: false, window };
   if (clock.minutes < toMinutes(schedule.start_time)) return { key: 'upcoming', label: 'Upcoming today', tone: 'muted', canCheckIn: false, window };
   if (!classInProgress(schedule, clock)) return { key: 'finished', label: 'Class finished', tone: 'muted', canCheckIn: false, window };
@@ -72,7 +76,10 @@ export function studentClassStatus(schedule, data, clock, now = new Date()) {
 
 export function studentScheduleSummary(data, clock, now = new Date()) {
   const schedules = [...(data?.schedules || [])].sort(scheduleSort);
-  const today = schedules.filter(s => Number(s.weekday) === clock.weekday);
+  const today = schedules.filter(s => Number(s.weekday) === clock.weekday ||
+    (todayWindow(s, data?.windows || [], clock)?.is_override &&
+     windowIsOpen(todayWindow(s, data?.windows || [], clock), now)));
+
   const statuses = today.map(s => ({ schedule: s, ...studentClassStatus(s, data, clock, now) }));
   return {
     today: statuses,
