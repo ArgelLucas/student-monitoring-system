@@ -36,9 +36,14 @@ export async function getContext({ touchSession = true } = {}) {
   const admin = await rpc('is_admin');
   if (admin) return { user: data.user, admin: true, profile: null };
 
-  const result = await supabase.from('student_profiles')
-    .select('user_id,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,completed_at')
+  let result = await supabase.from('student_profiles')
+    .select('user_id,student_number,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,completed_at')
     .eq('user_id', data.user.id).maybeSingle();
+  if (isMissingRosterColumn(result.error)) {
+    result = await supabase.from('student_profiles')
+      .select('user_id,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,completed_at')
+      .eq('user_id', data.user.id).maybeSingle();
+  }
   return { user: data.user, admin: false, profile: ensure(result.data, result.error) };
 }
 
@@ -74,6 +79,34 @@ export async function getMyClassData(sectionId) {
   return { schedules: ensure(schedules.data, schedules.error), windows: ensure(windows.data, windows.error) };
 }
 
+function isMissingRosterColumn(error) {
+  return Boolean(error && (/student_number.*(does not exist|not found)|column.*student_number|could not find.*student_number/i.test(error.message || '')
+    || error.code === '42703' || error.code === 'PGRST204'));
+}
+
+async function getProfilesForAdmin() {
+  const fields = 'user_id,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,updated_at';
+  try { return await fetchPaged('student_profiles', 'user_id,student_number,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,updated_at', 'user_id'); }
+  catch (error) {
+    if (!isMissingRosterColumn(error)) throw error;
+    return fetchPaged('student_profiles', fields, 'user_id');
+  }
+}
+
+async function getOfficialRoster() {
+  const result = await supabase.from('student_roster')
+    .select('student_number,section_id,surname,first_name,middle_initial,full_name,linked_user_id,active,name_needs_review,source_term')
+    .eq('active', true).order('section_id').order('surname');
+  if (!result.error) return { rows: result.data, available: true };
+  // During setup the new schema may not yet be installed. Preserve admin
+  // access and display an upgrade notice instead of crashing the dashboard.
+  if (['42P01', 'PGRST205', 'PGRST200'].includes(result.error.code) ||
+      /could not find the table.*student_roster|relation.*student_roster.*does not exist/i.test(result.error.message || '')) {
+    return { rows: [], available: false };
+  }
+  throw new Error(result.error.message || 'Could not load the official student roster');
+}
+
 async function getAuditWithCompatibility() {
   const fields = 'id,actor_id,action,subject_user_id,created_at,details';
   const first = await supabase.from('audit_logs').select(fields)
@@ -94,9 +127,8 @@ async function getAuditWithCompatibility() {
 }
 
 export async function getAdminData() {
-  const [profiles, attendance, schedulesResult, windows, catalog, auditResult] = await Promise.all([
-    fetchPaged('student_profiles',
-      'user_id,surname,first_name,middle_initial,sex,age,section_id,subject_id,github_username,is_approved,updated_at', 'user_id'),
+  const [profiles, attendance, schedulesResult, windows, catalog, auditResult, rosterResult] = await Promise.all([
+    getProfilesForAdmin(),
     fetchPaged('attendance_records',
       'id,student_id,subject_id,attendance_date,attendance_window_id,marked_at,status', 'id'),
     supabase.from('class_schedules')
@@ -106,10 +138,12 @@ export async function getAdminData() {
       'id,schedule_id,meeting_date,is_open,opened_at,expires_at', 'id'),
     getCatalog(),
     getAuditWithCompatibility(),
+    getOfficialRoster(),
   ]);
   return {
     profiles, attendance,
     schedules: ensure(schedulesResult.data, schedulesResult.error),
-    windows, audit: auditResult.records, schemaWarnings: auditResult.warnings, ...catalog,
+    windows, audit: auditResult.records, roster: rosterResult.rows, rosterReady: rosterResult.available,
+    schemaWarnings: [...auditResult.warnings, ...(rosterResult.available ? [] : ['Student roster migration 004 has not been applied. Daily roster reporting and student-number lookup are unavailable.'])], ...catalog,
   };
 }

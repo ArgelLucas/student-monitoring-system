@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowRight, BookOpen, CalendarCheck, CalendarClock, CalendarDays,
@@ -110,8 +110,12 @@ export function ProfilePage() {
   const [profileError, setProfileError] = useState('');
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(!approved);
+  const [rosterMatch, setRosterMatch] = useState(p?.student_number ? {student_number:p.student_number} : null);
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const autoLookedUpNumber = useRef('');
+  const [lookupHint, setLookupHint] = useState('');
   const [form, setForm] = useState({
-    surname: p?.surname || '', first_name: p?.first_name || '',
+    student_number: p?.student_number || '', surname: p?.surname || '', first_name: p?.first_name || '',
     middle_initial: p?.middle_initial || '', sex: p?.sex || '',
     age: p?.age ?? '', section_id: String(p?.section_id || ''),
     subject_id: String(p?.subject_id || ''), github_username: p?.github_username || '',
@@ -141,13 +145,61 @@ export function ProfilePage() {
     if (profileError) setProfileError('');
   }
 
+  // Exact number lookup happens only after GitHub authentication. Official
+  // names/section come from a rate-limited, RLS-protected Supabase RPC.
+  async function resolveStudentNumber(number) {
+    if (!/^\d{8,15}$/.test(number)) { setLookupHint('Enter your complete student number.'); return; }
+    if (rosterMatch?.student_number === number) return;
+    setLookupBusy(true); setLookupHint('Checking official school roster…');
+    try {
+      const record = await rpc('lookup_roster_student', {p_student_number:number});
+      const offered = (catalog?.sectionSubjects || []).filter(pair =>
+        Number(pair.section_id) === Number(record.section_id));
+      const chosen = offered.length === 1 ? String(offered[0].subject_id) : '';
+      setForm(old => old.student_number !== number ? old : ({...old,
+        surname:record.surname, first_name:record.first_name,
+        middle_initial:record.middle_initial, section_id:String(record.section_id),
+        subject_id:chosen}));
+      setRosterMatch(record);
+      setLookupHint(record.name_needs_review
+        ? 'Record found. Your instructor will verify the official name spelling before approval.'
+        : 'Official name and section found. Complete the remaining fields.');
+      setProfileError('');
+    } catch (err) {
+      setRosterMatch(null);
+      setLookupHint(err.message || 'Record could not be found. Contact your instructor.');
+    } finally { setLookupBusy(false); }
+  }
+
+  // Student numbers in the supplied rosters are 10 digits. Autofill shortly
+  // after entering all 10 digits; the Find record control also supports other
+  // valid 8–15 digit school identifiers and keyboard accessibility.
+  useEffect(() => {
+    const number = form.student_number?.trim() || '';
+    if (approved || !editing || !/^\d{10}$/.test(number)
+        || rosterMatch?.student_number === number || lookupBusy || autoLookedUpNumber.current === number) return;
+    const timer = window.setTimeout(() => { autoLookedUpNumber.current = number; void resolveStudentNumber(number); }, 500);
+    return () => window.clearTimeout(timer);
+  }, [form.student_number, approved, editing, rosterMatch?.student_number, lookupBusy]);
+
   async function submit(event) {
     event.preventDefault();
+    if (!approved && (!rosterMatch || rosterMatch.student_number !== form.student_number.trim())) {
+      setProfileError('Enter your student number and wait for the official record to appear.'); return;
+    }
     const result = validateStudentProfile(form, catalog, verified, approved ? p : null);
     if (result.error) { setProfileError(result.error); return; }
     setBusy(true); setProfileError('');
     try {
-      await rpc('save_student_profile', result.payload);
+      if (!approved && form.student_number.trim()) {
+        await rpc('submit_roster_student_profile', {
+          p_student_number: form.student_number.trim(), p_sex: form.sex,
+          p_age: Number(form.age), p_subject_id: Number(form.subject_id),
+          p_github_username: verified
+        });
+      } else {
+        await rpc('save_student_profile', result.payload);
+      }
       await reload({ silent: true });
       if (approved) setEditing(false);
       else navigate('/pending', { replace: true });
@@ -179,14 +231,14 @@ export function ProfilePage() {
       <div className="student-profile-layout student-record-layout">
         <Card className="profile-card student-record-form-card">
           <div className="student-record-form-intro">
-            <div><span className="student-record-index">STUDENT INFORMATION</span><h2>Personal details</h2><p>Use the same name you use on official class records.</p></div>
+            <div><span className="student-record-index">STUDENT INFORMATION</span><h2>Personal details</h2><p>Enter your student number to retrieve your official name and section.</p></div>
             <span className="student-record-counter">01 / 02</span>
           </div>
           <PageAlert message={profileError} onClose={() => setProfileError('')}/>
           {approved && !editing ? <div className="student-v6-profile-summary" aria-label="Approved student details">
             <div className="student-v6-profile-header"><span className="student-record-index">VERIFIED STUDENT RECORD</span><button type="button" className="student-v6-edit" onClick={() => setEditing(true)}><Pencil size={15} aria-hidden="true"/> Edit personal details</button></div>
             <dl className="student-v6-readonly-grid">
-              <div><dt>Surname</dt><dd>{form.surname}</dd></div><div><dt>First name</dt><dd>{form.first_name}</dd></div>
+              <div><dt>Student number</dt><dd>{form.student_number || 'Not linked to roster'}</dd></div><div><dt>Surname</dt><dd>{form.surname}</dd></div><div><dt>First name</dt><dd>{form.first_name}</dd></div>
               <div><dt>Middle initial</dt><dd>{form.middle_initial}</dd></div><div><dt>Sex</dt><dd>{form.sex}</dd></div>
               <div><dt>Age</dt><dd>{form.age}</dd></div><div><dt>Section</dt><dd>{sectionName}</dd></div>
               <div><dt>Primary subject</dt><dd>{subjectName}</dd></div><div><dt>Authenticated GitHub</dt><dd>{verified ? `@${verified}` : 'Verification pending'}</dd></div>
@@ -195,10 +247,26 @@ export function ProfilePage() {
           </div> : <form className="profile-form student-record-form" onSubmit={submit}>
             <fieldset className="student-record-section">
               <legend className="student-record-section-legend"><span>01</span> Identity</legend>
+              {!approved && <div className="student-v61-lookup">
+                <label htmlFor="student-school-number">Student number <span aria-hidden="true">*</span></label>
+                <div className="student-v61-lookup-controls">
+                  <input id="student-school-number" type="text" inputMode="numeric" autoComplete="off"
+                    pattern="[0-9]{8,15}" maxLength={15} required value={form.student_number}
+                    placeholder="Enter your 10-digit student number"
+                    onChange={e => { const n=e.target.value.replace(/\D/g,'');
+                      setForm(old=>({...old,student_number:n,surname:'',first_name:'',middle_initial:'',section_id:'',subject_id:''}));
+                      setRosterMatch(null);setLookupHint('');setProfileError(''); }}/>
+                  <button type="button" className="btn outline" disabled={lookupBusy || !/^\d{8,15}$/.test(form.student_number)}
+                    onClick={() => resolveStudentNumber(form.student_number)}>
+                    {lookupBusy ? 'Finding…' : 'Find my record'}
+                  </button>
+                </div>
+                <p className={`student-v61-lookup-hint ${rosterMatch ? 'is-found' : ''}`} role="status">{lookupHint || 'Your full name and section will fill automatically from the official roster.'}</p>
+              </div>}
               <div className="student-record-fields student-record-personal">
-                <FormField label="Surname"><input required maxLength={80} autoComplete="family-name" value={form.surname} onChange={e => update('surname', e.target.value)}/></FormField>
-                <FormField label="First name"><input required maxLength={80} autoComplete="given-name" value={form.first_name} onChange={e => update('first_name', e.target.value)}/></FormField>
-                <FormField label="Middle initial" hint="One letter or N/A"><input required maxLength={3} value={form.middle_initial} onChange={e => update('middle_initial', e.target.value)} placeholder="A or N/A"/></FormField>
+                <FormField label="Surname"><input required readOnly={!approved} maxLength={80} autoComplete="family-name" value={form.surname} onChange={e => update('surname', e.target.value)}/></FormField>
+                <FormField label="First name"><input required readOnly={!approved} maxLength={80} autoComplete="given-name" value={form.first_name} onChange={e => update('first_name', e.target.value)}/></FormField>
+                <FormField label="Middle initial" hint="One letter or N/A"><input required readOnly={!approved} maxLength={3} value={form.middle_initial} onChange={e => update('middle_initial', e.target.value)} placeholder="A or N/A"/></FormField>
                 <FormField label="Sex"><select required value={form.sex} onChange={e => update('sex', e.target.value)}><option value="">Select an option</option>{['Male','Female','Prefer not to say'].map(value => <option key={value} value={value}>{value}</option>)}</select></FormField>
                 <FormField label="Age"><input required type="number" min="12" max="99" step="1" value={form.age} onChange={e => update('age', e.target.value)}/></FormField>
               </div>
@@ -207,7 +275,7 @@ export function ProfilePage() {
               <legend className="student-record-section-legend"><span>02</span> Class assignment & account</legend>
               <p className="student-record-section-caption">Your class selection determines which subjects and attendance windows are available.</p>
               <div className="student-record-fields student-record-academic">
-                <FormField label="Section" hint={approved ? 'Instructor-managed after approval' : 'Choose your assigned class'}><select required disabled={approved} value={form.section_id} onChange={e => update('section_id', e.target.value)}><option value="">Choose section</option>{(catalog?.sections || []).map(s => <option key={s.id} value={s.id}>{s.code}</option>)}</select></FormField>
+                <FormField label="Section" hint={approved ? 'Instructor-managed after approval' : 'Choose your assigned class'}><select required disabled={approved || Boolean(rosterMatch?.student_number)} value={form.section_id} onChange={e => update('section_id', e.target.value)}><option value="">Choose section</option>{(catalog?.sections || []).map(s => <option key={s.id} value={s.id}>{s.code}</option>)}</select></FormField>
                 <FormField label="Primary subject" hint="Other assigned subjects will appear on your timetable"><select required disabled={approved} value={form.subject_id} onChange={e => update('subject_id', e.target.value)}><option value="">Choose subject</option>{(catalog?.subjects || []).filter(s => allowed.has(Number(s.id))).map(s => <option key={s.id} value={s.id}>{s.code}</option>)}</select></FormField>
                 <div className="student-record-github-field">
                   <FormField label="Linked GitHub account" hint="Read-only · verified from your GitHub sign-in"><div className="student-verified-input"><Code2 size={18} aria-hidden="true"/><input readOnly aria-label="Verified GitHub username" value={identityLoading ? 'Checking GitHub account…' : verified ? `@${verified}` : 'Identity could not be verified'}/><BadgeCheck size={19} aria-label={verified ? 'Authenticated GitHub identity' : 'GitHub identity pending'}/></div></FormField>
@@ -217,8 +285,8 @@ export function ProfilePage() {
             <div className="student-record-submit-bar">
               <p><ShieldCheck size={17} aria-hidden="true"/>{approved ? 'Section and subject changes require your instructor.' : 'Information is checked before your instructor reviews it.'}</p>
               <div className="student-v6-profile-actions">
-                {approved && <button type="button" className="student-v6-edit-cancel" disabled={busy} onClick={() => {setEditing(false);setProfileError('');setForm({surname:p?.surname||'',first_name:p?.first_name||'',middle_initial:p?.middle_initial||'',sex:p?.sex||'',age:p?.age??'',section_id:String(p?.section_id||''),subject_id:String(p?.subject_id||''),github_username:p?.github_username||''});}}>Cancel</button>}
-                <button type="submit" className="btn primary student-record-submit" disabled={busy || identityLoading || !verified || !catalog}>{busy ? 'Saving…' : approved ? 'Save changes' : 'Submit for approval'} <ArrowRight size={16} aria-hidden="true"/></button>
+                {approved && <button type="button" className="student-v6-edit-cancel" disabled={busy} onClick={() => {setEditing(false);setProfileError('');setForm({student_number:p?.student_number||'',surname:p?.surname||'',first_name:p?.first_name||'',middle_initial:p?.middle_initial||'',sex:p?.sex||'',age:p?.age??'',section_id:String(p?.section_id||''),subject_id:String(p?.subject_id||''),github_username:p?.github_username||''});}}>Cancel</button>}
+                <button type="submit" className="btn primary student-record-submit" disabled={busy || lookupBusy || identityLoading || !verified || !catalog || (!approved && !rosterMatch)}>{busy ? 'Saving…' : approved ? 'Save changes' : 'Submit for approval'} <ArrowRight size={16} aria-hidden="true"/></button>
               </div>
             </div>
           </form>}

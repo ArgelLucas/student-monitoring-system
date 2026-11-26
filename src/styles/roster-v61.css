@@ -1,0 +1,27 @@
+/* v6.1 official roster UI. No decorative motion, lifts or animated shadows. */
+.student-v61-lookup{padding:18px 20px;margin-bottom:18px;border:1px solid #dce8de;border-radius:14px;background:#f2f7f2;}
+.student-v61-lookup>label{display:block;font-size:13px;font-weight:700;margin-bottom:10px;color:#163c32;}
+.student-v61-lookup>label span{color:#0a785a}
+.student-v61-lookup-controls{display:flex;gap:10px;align-items:stretch;}
+.student-v61-lookup-controls input{min-width:0;flex:1;height:48px;border:1px solid #ccdcd3;border-radius:9px;background:#fff;padding:0 14px;font:inherit;color:#16352c;}
+.student-v61-lookup-controls button{flex:none;white-space:nowrap;transform:none!important;box-shadow:none!important;transition:background-color 180ms ease,border-color 180ms ease!important;}
+.student-v61-lookup-controls button:hover{transform:none!important;box-shadow:none!important;}
+.student-v61-lookup-hint{min-height:20px;color:#59766d;font-size:12px;line-height:1.5;margin:10px 0 0;}
+.student-v61-lookup-hint.is-found{color:#086b4d;}
+.student-record-form input[readonly]{background:#f3f7f3;color:#21453a;cursor:default;}
+.roster-v61-report-tabs{display:inline-flex;flex-wrap:wrap;gap:3px;background:#eef3ef;border:1px solid #dce5de;padding:4px;border-radius:12px;margin-bottom:14px;}
+.roster-v61-report-tabs button{border:0;border-radius:8px;padding:11px 17px;font:inherit;font-weight:700;font-size:13px;color:#506961;background:transparent;cursor:pointer;box-shadow:none;transform:none;transition:background-color 180ms ease;}
+.roster-v61-report-tabs button.is-selected{background:#fff;color:#085642;box-shadow:0 1px 3px rgba(18,50,36,.07);}
+.roster-v61-report-tabs button:hover:not(.is-selected):not(:disabled){background:#e5eee7;transform:none;}
+.roster-v61-report-tabs button:disabled{opacity:.55;cursor:not-allowed;}
+.roster-v61-report-tabs button:focus-visible,.student-v61-lookup-controls button:focus-visible{outline:3px solid #087657;outline-offset:3px;}
+.roster-v61-description,.roster-v61-intro{font-size:13px;line-height:1.7;color:#58746b;margin:0 0 18px;}
+.roster-v61-status-explainer{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 19px;}
+.roster-v61-status-explainer span{font-size:12px;line-height:1.5;border:1px solid #e0e9e1;background:#f5f8f4;border-radius:9px;padding:9px 12px;color:#5b7469;}
+.roster-v61-status-explainer strong{color:#104c3b;font-weight:800;}
+.roster-v61-number{font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap;}
+.roster-v61-time,.roster-v61-needs-review{display:block;font-size:11px;color:#657e72;margin-top:5px;}
+.roster-v61-needs-review{color:#96661b;font-weight:650;}
+.roster-v61-warning{border:1px solid #ecdbb5;background:#fff8e8;color:#715523;border-radius:10px;padding:12px 14px;line-height:1.6;font-size:13px;margin:12px 0;}
+@media(max-width:640px){.student-v61-lookup{padding:14px;}.student-v61-lookup-controls{flex-direction:column;}.student-v61-lookup-controls button{width:100%;}.roster-v61-report-tabs{display:flex;width:100%;}.roster-v61-report-tabs button{flex:1;padding:10px 8px;}.roster-v61-status-explainer{flex-direction:column;gap:7px;}}
+@media(prefers-reduced-motion:reduce){.student-v61-lookup-controls button,.roster-v61-report-tabs button{transition:none!important;}}

@@ -9,6 +9,7 @@ import './styles/access-landing.css';
 import './styles/student-experience.css';
 import './styles/student-polish.css';
 import './styles/student-v6.css';
+import './styles/roster-v61.css';
 import { SessionProvider } from './state/SessionProvider.jsx';
 import App from './App.jsx';
 
