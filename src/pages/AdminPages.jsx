@@ -101,8 +101,9 @@ const subject = (data, id) =>
 const fullName = (p) => `${p.first_name || ""} ${p.surname || ""}`.trim();
 const initials = (p) =>
   `${p.first_name?.[0] || "?"}${p.surname?.[0] || "?"}`.toUpperCase();
+// Window state is server-authorized. Extra sessions are allowed on other days.
 const openFor = (s, d, c = manilaClock()) =>
-  classInProgress(s, c) && windowIsOpen(todayWindow(s, d.windows, c));
+  windowIsOpen(todayWindow(s, d.windows, c));
 const timeFor = (s) => `${timeLabel(s.start_time)} – ${timeLabel(s.end_time)}`;
 
 function useTheme() {
@@ -1303,44 +1304,68 @@ function ClassControl({ schedule: s, data, showDay = true }) {
   const { perform } = useSession();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [showOverride, setShowOverride] = useState(false);
+  const [overrideMinutes, setOverrideMinutes] = useState(30);
+  const [overrideReason, setOverrideReason] = useState("");
   const clock = manilaClock();
   const win = todayWindow(s, data.windows, clock);
   const active = openFor(s, data, clock);
   const inClass = classInProgress(s, clock);
+  const activeOverride = active && Boolean(win?.is_override);
   const status = active
-    ? "Open"
-    : win
-      ? "Closed / expired"
-      : inClass
-        ? "Ready"
-        : "Scheduled";
+    ? activeOverride ? "Extra session open" : "Open"
+    : win ? "Closed / expired" : inClass ? "Ready" : "Scheduled";
+
   async function execute() {
-    if (
-      !window.confirm(
-        `${active ? "Close" : "Open"} attendance for Section ${section(data, s.section_id)}, ${subject(data, s.subject_id)}?`,
-      )
-    )
-      return;
+    if (!window.confirm(
+      `${active ? "Close" : "Open"} attendance for Section ${section(data, s.section_id)}, ${subject(data, s.subject_id)}?`
+    )) return;
     setBusy(true);
     setError("");
     try {
-      await perform(() =>
-        rpc(active ? "close_class_attendance" : "open_class_attendance", {
-          p_schedule_id: Number(s.id),
-        }),
-      );
+      await perform(() => rpc(
+        active ? "close_class_attendance" : "open_class_attendance",
+        { p_schedule_id: Number(s.id) }
+      ));
+      setShowOverride(false);
     } catch (e) {
-      setError(e.message);
+      setError(e.message || "Attendance could not be updated");
     } finally {
       setBusy(false);
     }
   }
+
+  async function forceOpen(event) {
+    event.preventDefault();
+    const reason = overrideReason.trim();
+    if (reason.length < 10 || reason.length > 240) {
+      setError("Enter an override reason between 10 and 240 characters.");
+      return;
+    }
+    if (!window.confirm(
+      `Force open attendance for Section ${section(data, s.section_id)} · ${subject(data, s.subject_id)} for ${overrideMinutes} minutes today? This will be saved in the activity log.`
+    )) return;
+    setBusy(true);
+    setError("");
+    try {
+      await perform(() => rpc("force_open_class_attendance", {
+        p_schedule_id: Number(s.id),
+        p_minutes: Number(overrideMinutes),
+        p_reason: reason,
+      }));
+      setShowOverride(false);
+      setOverrideReason("");
+    } catch (e) {
+      setError(e.message || "Unable to start extra attendance");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <div className="schedule-card">
+    <div className={`schedule-card ${activeOverride ? "schedule-card-override" : ""}`}>
       <div className="schedule-primary">
-        <div className="schedule-symbol">
-          <GraduationCap size={20} />
-        </div>
+        <div className="schedule-symbol"><GraduationCap size={20} /></div>
         <div>
           <strong>Section {section(data, s.section_id)}</strong>
           <small>{subject(data, s.subject_id)}</small>
@@ -1349,23 +1374,55 @@ function ClassControl({ schedule: s, data, showDay = true }) {
       <div className="schedule-details">
         {showDay && <span>{weekdayLabel(s.weekday)}</span>}
         <span>{timeFor(s)}</span>
+        {activeOverride && <span className="override-end-note">
+          Expires {new Intl.DateTimeFormat("en-PH", {
+            timeZone: "Asia/Manila", hour: "numeric", minute: "2-digit"
+          }).format(new Date(win.expires_at))} PHT
+        </span>}
       </div>
-      <Badge tone={active ? "good" : inClass && !win ? "warn" : "muted"}>
-        {status}
-      </Badge>
-      <button
-        type="button"
-        className={`btn ${active ? "outline" : "primary"} tiny`}
-        disabled={busy || (!active && !inClass)}
-        onClick={execute}
-      >
-        {busy ? "Working…" : active ? "Close attendance" : "Open attendance"}
-      </button>
-      {error && (
-        <p className="inline-error" role="alert">
-          {error}
-        </p>
-      )}
+      <Badge tone={active ? "good" : inClass && !win ? "warn" : "muted"}>{status}</Badge>
+      <div className="schedule-actions">
+        <button
+          type="button"
+          className={`btn ${active ? "outline" : "primary"} tiny`}
+          disabled={busy || (!active && !inClass)}
+          onClick={execute}
+        >
+          {busy ? "Working…" : active ? "Close attendance" : "Open attendance"}
+        </button>
+        {!active && !inClass && <button
+          type="button" className="btn outline tiny schedule-override-toggle"
+          aria-expanded={showOverride} aria-label={`Force open attendance for Section ${section(data, s.section_id)}`}
+          disabled={busy} onClick={() => { setShowOverride(v => !v); setError(""); }}
+        >{showOverride ? "Cancel override" : "Force open"}</button>}
+      </div>
+      {showOverride && !active && <form onSubmit={forceOpen}
+        className="schedule-override-form" aria-label="Temporary instructor attendance override">
+        <div className="schedule-override-intro">
+          <strong>Extra attendance window</strong>
+          <span>Available only to approved students in this section. The window expires automatically and will be recorded in the activity log.</span>
+        </div>
+        <label>
+          <span>Duration</span>
+          <select value={overrideMinutes} onChange={e => setOverrideMinutes(Number(e.target.value))}
+            disabled={busy}>
+            <option value={15}>15 minutes</option>
+            <option value={30}>30 minutes</option>
+            <option value={60}>60 minutes</option>
+          </select>
+        </label>
+        <label className="schedule-override-reason">
+          <span>Reason for exception</span>
+          <input required minLength={10} maxLength={240}
+            placeholder="e.g. Replacement session for a postponed class"
+            value={overrideReason} disabled={busy}
+            onChange={e => setOverrideReason(e.target.value)} />
+        </label>
+        <button type="submit" className="btn primary tiny" disabled={busy}>
+          {busy ? "Opening…" : "Confirm force open"}
+        </button>
+      </form>}
+      {error && <p className="inline-error" role="alert">{error}</p>}
     </div>
   );
 }
@@ -1379,7 +1436,7 @@ export function ClassesPage() {
     <MotionPage>
       <Title
         eyebrow="CLASS SCHEDULES"
-        description="Actual class times use Asia/Manila. Open or close a meeting only during its scheduled period."
+        description="Scheduled attendance follows Philippine time. You can authorize a short, logged exception when needed."
         actions={
           <button
             className="btn subtle"
@@ -1416,8 +1473,7 @@ export function ClassesPage() {
           ))}
         </div>
         <p className="footnote">
-          If a class has not started yet, the Open button remains disabled. The
-          database also enforces this restriction.
+          Regular attendance follows the published timetable. Use Force open only for a genuine extra session; each override expires within 15–60 minutes and is audited.
         </p>
       </Card>
     </MotionPage>
@@ -1482,7 +1538,7 @@ export function AttendancePage() {
         <PanelTitle
           icon={CalendarCheck}
           title="Class controls"
-          subtitle="Open attendance during the correct scheduled meeting"
+          subtitle="Regular attendance follows the timetable; extra sessions require an administrator override"
         />
         <div className="schedule-list">
           {today.map((s) => (
