@@ -73,7 +73,7 @@ export async function getMyClassData(sectionId) {
       .select('id,section_id,subject_id,weekday,start_time,end_time')
       .eq('section_id', sectionId).order('weekday').order('start_time'),
     supabase.from('attendance_windows')
-      .select('id,schedule_id,meeting_date,is_open,opened_at,expires_at')
+      .select('id,schedule_id,meeting_date,is_open,opened_at,expires_at,is_override')
       .order('meeting_date', { ascending: false }).limit(500),
   ]);
   return { schedules: ensure(schedules.data, schedules.error), windows: ensure(windows.data, windows.error) };
@@ -135,7 +135,7 @@ export async function getAdminData() {
       .select('id,section_id,subject_id,weekday,start_time,end_time')
       .order('weekday').order('start_time'),
     fetchPaged('attendance_windows',
-      'id,schedule_id,meeting_date,is_open,opened_at,expires_at', 'id'),
+      'id,schedule_id,meeting_date,is_open,opened_at,expires_at,is_override', 'id'),
     getCatalog(),
     getAuditWithCompatibility(),
     getOfficialRoster(),
