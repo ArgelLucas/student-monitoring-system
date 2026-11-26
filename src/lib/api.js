@@ -68,7 +68,7 @@ export async function getMyAttendance(userId) {
 }
 
 export async function getMyClassData(sectionId) {
-  const [schedules, windows] = await Promise.all([
+  const [schedules, initialWindows] = await Promise.all([
     supabase.from('class_schedules')
       .select('id,section_id,subject_id,weekday,start_time,end_time')
       .eq('section_id', sectionId).order('weekday').order('start_time'),
@@ -76,7 +76,32 @@ export async function getMyClassData(sectionId) {
       .select('id,schedule_id,meeting_date,is_open,opened_at,expires_at,is_override')
       .order('meeting_date', { ascending: false }).limit(500),
   ]);
-  return { schedules: ensure(schedules.data, schedules.error), windows: ensure(windows.data, windows.error) };
+  let windows = initialWindows;
+  if (isMissingOverrideColumn(windows.error)) {
+    windows = await supabase.from('attendance_windows')
+      .select('id,schedule_id,meeting_date,is_open,opened_at,expires_at')
+      .order('meeting_date', { ascending: false }).limit(500);
+  }
+  return { schedules: ensure(schedules.data, schedules.error),
+    windows: ensure(windows.data, windows.error).map(w => ({...w,is_override:Boolean(w.is_override)})) };
+}
+
+function isMissingOverrideColumn(error) {
+  return Boolean(error && (
+    error.code === '42703' || error.code === 'PGRST204' ||
+    /is_override.*(does not exist|not found)|column.*is_override/i.test(error.message || '')
+  ));
+}
+
+async function getWindowsForAdmin() {
+  const fields = 'id,schedule_id,meeting_date,is_open,opened_at,expires_at,is_override';
+  try { return await fetchPaged('attendance_windows', fields, 'id'); }
+  catch (error) {
+    if (!isMissingOverrideColumn(error)) throw error;
+    const previous = await fetchPaged('attendance_windows',
+      'id,schedule_id,meeting_date,is_open,opened_at,expires_at', 'id');
+    return previous.map(w => ({...w,is_override:false}));
+  }
 }
 
 function isMissingRosterColumn(error) {
@@ -134,8 +159,7 @@ export async function getAdminData() {
     supabase.from('class_schedules')
       .select('id,section_id,subject_id,weekday,start_time,end_time')
       .order('weekday').order('start_time'),
-    fetchPaged('attendance_windows',
-      'id,schedule_id,meeting_date,is_open,opened_at,expires_at,is_override', 'id'),
+    getWindowsForAdmin(),
     getCatalog(),
     getAuditWithCompatibility(),
     getOfficialRoster(),
