@@ -23,10 +23,12 @@ export function buildDailyRosterReport(
     .map(a=>`${a.attendance_window_id}:${a.student_id}`));
   const rows=[];
   for (const schedule of schedules) {
-    if (Number(schedule.weekday)!==weekday) continue;
+    // Instructor-created extra sessions appear on their actual meeting date,
+    // even when they do not match the usual weekly timetable.
+    const window=windows.find(w=>Number(w.schedule_id)===Number(schedule.id)&&w.meeting_date===date);
+    if (Number(schedule.weekday)!==weekday && !window?.is_override) continue;
     if (sectionId && Number(schedule.section_id)!==Number(sectionId)) continue;
     if (subjectId && Number(schedule.subject_id)!==Number(subjectId)) continue;
-    const window=windows.find(w=>Number(w.schedule_id)===Number(schedule.id)&&w.meeting_date===date);
     const isOpen=windowIsOpen(window,now);
     const members=roster.filter(r=>r.active!==false&&Number(r.section_id)===Number(schedule.section_id));
     const linked=new Set(members.map(r=>String(r.linked_user_id||byNumber.get(String(r.student_number))?.user_id||'')).filter(Boolean));
