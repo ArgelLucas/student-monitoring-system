@@ -596,7 +596,7 @@ export function Overview() {
           </div>
         }
       >
-        Admin Dashboard <span className="wave">✦</span>
+        Student Monitoring System <span className="wave">✦</span>
       </Title>
       <RevealList className="stats-grid">
         {cards.map((c) => (
