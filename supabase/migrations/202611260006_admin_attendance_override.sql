@@ -88,6 +88,49 @@ BEGIN
 END;
 $$;
 
+-- Normal scheduled opening must explicitly clear the override marker, even
+-- if a prior extra session for this schedule already existed on the same date.
+CREATE OR REPLACE FUNCTION public.open_class_attendance(p_schedule_id bigint)
+RETURNS jsonb
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $
+DECLARE
+  v_schedule public.class_schedules%ROWTYPE;
+  v_manila timestamp := now() AT TIME ZONE 'Asia/Manila';
+  v_now timestamptz := now();
+  v_end timestamptz;
+  v_window public.attendance_windows%ROWTYPE;
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.portal_session_active() OR NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Administrator access required' USING ERRCODE='42501';
+  END IF;
+  SELECT s.* INTO v_schedule FROM public.class_schedules s
+    JOIN public.sections sec ON sec.id=s.section_id AND sec.is_active
+    JOIN public.subjects sub ON sub.id=s.subject_id AND sub.is_active
+    WHERE s.id=p_schedule_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Class schedule not found'; END IF;
+  IF extract(isodow FROM v_manila)::smallint<>v_schedule.weekday OR
+     v_manila::time<v_schedule.start_time OR
+     v_manila::time>=v_schedule.end_time THEN
+    RAISE EXCEPTION 'You may open attendance only during this class time (Asia/Manila)';
+  END IF;
+  v_end := (v_manila::date+v_schedule.end_time) AT TIME ZONE 'Asia/Manila';
+  INSERT INTO public.attendance_windows(
+    schedule_id,meeting_date,opened_at,expires_at,created_by,
+    is_open,closed_at,is_override
+  ) VALUES(
+    v_schedule.id,v_manila::date,v_now,v_end,auth.uid(),true,NULL,false
+  ) ON CONFLICT(schedule_id,meeting_date) DO UPDATE SET
+    is_open=true,closed_at=NULL,opened_at=EXCLUDED.opened_at,
+    expires_at=EXCLUDED.expires_at,created_by=EXCLUDED.created_by,
+    is_override=false
+  RETURNING * INTO v_window;
+  INSERT INTO public.audit_logs(actor_id,action)
+    VALUES(auth.uid(),'attendance.window.opened');
+  RETURN pg_catalog.jsonb_build_object('window_id',v_window.id,
+    'meeting_date',v_window.meeting_date,'expires_at',v_window.expires_at);
+END;
+$;
+
 -- Re-declare the same protected check-in routine with one narrow exception:
 -- an active, administrator-created override window bypasses only the weekday
 -- and clock-time check. Section, approval, current PH date, open window,
