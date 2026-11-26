@@ -171,3 +171,94 @@
   .panel-focus-button { transition: none !important; }
   .dashboard-bento > .bento-panel { will-change: auto; }
 }
+
+
+/* v6.3: deliberate, time-limited instructor attendance exception. */
+.verdant-app .schedule-card-override {
+  border-color: color-mix(in srgb, var(--mint) 35%, var(--stroke));
+}
+.verdant-app .schedule-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.verdant-app .schedule-override-toggle {
+  background: transparent;
+  box-shadow: none;
+}
+.verdant-app .schedule-override-form {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-basis: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+}
+.verdant-app .schedule-override-intro {
+  flex-basis: 100%;
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+}
+.verdant-app .schedule-override-intro span,
+.verdant-app .override-end-note {
+  color: var(--muted);
+  font-size: 11px;
+}
+.verdant-app .schedule-override-form label {
+  display: grid;
+  gap: 7px;
+  min-width: 130px;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--muted);
+}
+.verdant-app .schedule-override-form label.schedule-override-reason {
+  flex: 1 1 260px;
+}
+.verdant-app .schedule-override-form input,
+.verdant-app .schedule-override-form select {
+  min-height: 40px;
+  min-width: 0;
+  width: 100%;
+  padding: 8px 11px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--stroke-strong);
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+}
+.verdant-app .schedule-override-form input:focus-visible,
+.verdant-app .schedule-override-form select:focus-visible,
+.verdant-app .schedule-actions button:focus-visible {
+  outline: 3px solid var(--mint);
+  outline-offset: 3px;
+}
+.verdant-app .schedule-actions .btn,
+.verdant-app .schedule-override-form .btn {
+  transform: none !important;
+  box-shadow: none !important;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+@media (max-width: 640px) {
+  .verdant-app .schedule-actions {
+    justify-content: stretch;
+    width: 100%;
+  }
+  .verdant-app .schedule-actions button { flex: 1; }
+  .verdant-app .schedule-override-form {
+    align-items: stretch;
+  }
+  .verdant-app .schedule-override-form label,
+  .verdant-app .schedule-override-form button { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .verdant-app .schedule-actions .btn,
+  .verdant-app .schedule-override-form .btn { transition: none; }
+}
