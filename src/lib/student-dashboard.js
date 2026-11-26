@@ -52,7 +52,7 @@ export function groupAttendanceHistory(records = [], subjects = []) {
 
 export function statusExplanation(key) {
   switch (key) {
-    case 'open': return 'Your instructor has opened check-in. You can record attendance now.';
+    case 'open': return 'Your instructor has opened check-in. You can record attendance now, including during an authorized extra session.';
     case 'waiting': return 'Class is in progress. Waiting for your instructor to open check-in.';
     case 'upcoming': return 'Class has not started yet. Check-in is not available.';
     case 'recorded': return 'Your attendance was saved for this meeting.';
