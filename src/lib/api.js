@@ -147,3 +147,51 @@ export async function getAdminData() {
     schemaWarnings: [...auditResult.warnings, ...(rosterResult.available ? [] : ['Student roster migration 004 has not been applied. Daily roster reporting and student-number lookup are unavailable.'])], ...catalog,
   };
 }
+
+// Instructor-only class record reads/writes. Tables in migration 005 enforce RLS.
+export async function getClassRecordData(sectionId, subjectId, term, academicYear, semester) {
+  const [roster, items] = await Promise.all([
+    supabase.from('student_roster')
+      .select('student_number,full_name,section_id,active,name_needs_review')
+      .eq('section_id', sectionId).eq('active',true).order('full_name'),
+    supabase.from('class_record_assessments')
+      .select('id,section_id,subject_id,term,category,title,max_score,assessment_date,academic_year,semester')
+      .eq('section_id',sectionId).eq('subject_id',subjectId).eq('term',term)
+      .eq('academic_year',academicYear).eq('semester',semester)
+      .order('assessment_date').order('id'),
+  ]);
+  const assessments = ensure(items.data,items.error);
+  const students = ensure(roster.data,roster.error);
+  if (!assessments.length) return {students,assessments,scores:[]};
+  const scores=[];
+  // PostgREST often limits individual responses to 1000 rows. Never silently
+  // drop scores from a larger class gradebook.
+  for(let offset=0;offset<20000;offset+=500){
+    const result=await supabase.from('class_record_scores')
+      .select('assessment_id,student_number,score,updated_at')
+      .in('assessment_id', assessments.map(a=>a.id))
+      .order('assessment_id').order('student_number')
+      .range(offset,offset+499);
+    const page=ensure(result.data,result.error);
+    scores.push(...page);
+    if(page.length<500) return {students,assessments,scores};
+  }
+  throw new Error('Class records exceed the safe page limit; contact the administrator');
+}
+
+export async function addClassRecordAssessment(item) {
+  const {data,error} = await supabase.from('class_record_assessments').insert(item)
+    .select('id').single();
+  return ensure(data,error);
+}
+
+export async function removeClassRecordAssessment(id) {
+  const {error} = await supabase.from('class_record_assessments').delete().eq('id',id);
+  ensure(null,error);
+}
+
+export async function persistClassRecordScores(changes) {
+  // One PostgreSQL transaction: either every score change succeeds, or none do.
+  // The SECURITY DEFINER RPC verifies admin access and records audit history.
+  return rpc('save_class_record_scores', {p_changes:changes});
+}

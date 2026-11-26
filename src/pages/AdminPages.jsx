@@ -2,7 +2,7 @@ import React,{useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {Link,NavLink,Outlet,useLocation,useNavigate,useSearchParams} from 'react-router-dom';
 import {gsap} from 'gsap';
 import {useGSAP} from '@gsap/react';
-import {Activity,ArrowRight,BarChart3,Bell,BookOpen,CalendarCheck,CalendarClock,CalendarDays,Check,CheckCircle2,ChevronRight,Clock3,Download,Filter,GraduationCap,LayoutDashboard,LogOut,Menu,Moon,RefreshCw,Search,ShieldCheck,Sun,UsersRound,X} from 'lucide-react';
+import {Activity,ArrowRight,BarChart3,Bell,BookOpen,CalendarCheck,CalendarClock,CalendarDays,Check,CheckCircle2,ChevronRight,Clock3,Download,Filter,GraduationCap,LayoutDashboard,LogOut,Menu,Moon,RefreshCw,Search,ShieldCheck,Sun,UsersRound,X,ClipboardList} from 'lucide-react';
 import {Card,Title,Badge,Empty,PageAlert,MotionPage,RevealList,StatCard,PanelTitle,Modal,DataTable} from '../components/UI.jsx';
 import {useDashboardFocus, FocusButton} from '../components/DashboardFocus.jsx';
 import {useSession} from '../state/SessionProvider.jsx';
@@ -14,7 +14,7 @@ import {attendanceTrend} from './legacy-trend.js';
 import {buildMeetingReport,summarizeMeetingReport,toCsv} from '../lib/report.js';
 import { buildDailyRosterReport, summarizeDailyRoster, toDailyRosterCsv } from '../lib/daily-register.js';
 
-const NAV=[['/admin','Overview',LayoutDashboard],['/admin/students','Students',UsersRound],['/admin/attendance','Attendance',CalendarCheck],['/admin/classes','Classes',BookOpen],['/admin/reports','Reports',BarChart3],['/admin/audit','Activity log',Activity]];
+const NAV=[['/admin','Overview',LayoutDashboard],['/admin/students','Students',UsersRound],['/admin/attendance','Attendance',CalendarCheck],['/admin/classes','Classes',BookOpen],['/admin/class-records','Class records',ClipboardList],['/admin/reports','Reports',BarChart3],['/admin/audit','Activity log',Activity]];
 const section=(data,id)=>data.sections.find(s=>Number(s.id)===Number(id))?.code||'—';
 const subject=(data,id)=>data.subjects.find(s=>Number(s.id)===Number(id))?.code||'—';
 const fullName=p=>`${p.first_name||''} ${p.surname||''}`.trim();
