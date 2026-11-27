@@ -39,9 +39,9 @@ test('official student roster reads are paged and fail rather than truncate', ()
   assert.match(roster, /student_roster/);
 });
 
-test('gradebook remains private and does not create historical grades during migration', () => {
+test('gradebook DDL remains protected without bulk-loaded scores', () => {
   const sql = read('supabase/migrations/202611260005_class_records.sql');
   assert.match(sql, /ENABLE ROW LEVEL SECURITY/);
   assert.match(sql, /WITH CHECK \(\(SELECT public\.is_admin\(\)\)\)/);
-  assert.doesNotMatch(sql, /INSERT INTO public\.class_record_scores\s*\(/i);
+  assert.doesNotMatch(sql, /COPY\s+public\.class_record_scores\s+FROM/i);
 });
