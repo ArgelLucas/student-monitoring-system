@@ -25,6 +25,7 @@ DECLARE
   v_window public.attendance_windows%ROWTYPE;
   v_now timestamptz := now();
   v_today date := (now() AT TIME ZONE 'Asia/Manila')::date;
+  v_end timestamptz;
   v_reason text := btrim(coalesce(p_reason,''));
 BEGIN
   IF auth.uid() IS NULL OR NOT public.portal_session_active() OR NOT public.is_admin() THEN
@@ -54,12 +55,19 @@ BEGIN
     RAISE EXCEPTION 'Attendance is already open for this class; close it before starting another window';
   END IF;
 
+  -- A forced session must never extend beyond its Philippine meeting date.
+  v_end := LEAST(v_now + make_interval(mins=>p_minutes),
+    (v_today + 1)::timestamp AT TIME ZONE 'Asia/Manila');
+  IF v_end <= v_now + interval '1 minute' THEN
+    RAISE EXCEPTION 'Too close to Philippine midnight for a new attendance window';
+  END IF;
+
   INSERT INTO public.attendance_windows (
     schedule_id,meeting_date,opened_at,expires_at,created_by,is_open,
     closed_at,is_override,override_reason,override_by
   )
   VALUES (
-    p_schedule_id,v_today,v_now,v_now+make_interval(mins=>p_minutes),
+    p_schedule_id,v_today,v_now,v_end,
     auth.uid(),true,NULL,true,v_reason,auth.uid()
   )
   ON CONFLICT (schedule_id,meeting_date) DO UPDATE SET
