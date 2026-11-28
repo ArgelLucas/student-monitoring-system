@@ -27,7 +27,8 @@ export function getDateSessions(data,date,reviewByWindow={},now=new Date()){
   const sub=new Map(subjects.map(s=>[Number(s.id),s.code]));
   return schedules.flatMap(schedule=>{
     const window=windows.find(w=>Number(w.schedule_id)===Number(schedule.id) && w.meeting_date===date);
-    if(Number(schedule.weekday)!==dow && !window?.is_override)return [];
+    // Preserve actually recorded meetings even if their recurring weekday changed later.
+    if(Number(schedule.weekday)!==dow && !window)return [];
     const review=window?reviewByWindow[window.id]:null;
     const open=windowIsOpen(window,now);
     let status;
