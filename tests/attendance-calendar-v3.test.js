@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {monthDates,shiftCalendarMonth,getDateSessions,getMonthSessions,
- resolveStudentStatus,sessionRegisterRows,summarizeRegister,exportRegisterCsv}
+ resolveStudentStatus,sessionRegisterRows,previewOfficialRoster,summarizeCalendarMonth,summarizeRegister,exportRegisterCsv}
  from '../src/lib/attendance-calendar.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
@@ -38,6 +38,24 @@ test('scheduled but unopened meetings are not absences',()=>{
  assert.ok(rows.every(r=>r.status==='Scheduled · not opened'));
  assert.ok(rows.every(r=>r.windowId===null));
  assert.equal(getDateSessions(base,'2026-11-25').length,0);
+});
+test('unopened dates show all current official students without labeling them absent',()=>{
+ const data={...base,roster:[
+  {student_number:'2026000001',section_id:1,full_name:'Example, Alex',active:true},
+  {student_number:'2026000002',section_id:1,full_name:'Example, Bea',active:true},
+  {student_number:'2026000003',section_id:2,full_name:'Other, Student',active:true}
+ ]};
+ const rows=previewOfficialRoster(data,1);
+ assert.equal(rows.length,2);
+ assert.ok(rows.every(x=>x.status==='Not Yet Recorded'));
+ assert.equal(summarizeCalendarMonth(getMonthSessions(data,'2026-11')).opened,0);
+});
+test('legacy session preview can show saved check-ins without claiming historical membership',()=>{
+ const data={...base,roster:[{student_number:'2026000001',section_id:1,full_name:'Example, Alex',active:true,linked_user_id:'u1'}],
+ attendance:[{student_id:'u1',attendance_window_id:9}]};
+ const preview=previewOfficialRoster(data,1,9);
+ assert.equal(preview[0].status,'Present');
+ assert.equal(previewOfficialRoster(data,1)[0].status,'Not Yet Recorded');
 });
 test('open, finalized, cancelled and extra sessions remain distinct',()=>{
  const windows=[
