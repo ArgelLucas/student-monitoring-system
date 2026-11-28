@@ -66,6 +66,38 @@ export function sessionRegisterRows(entries,attendance,profiles,windowId){
     status:resolveStudentStatus(e,attendance,profiles,windowId)
   })).sort((a,b)=>a.student_name_snapshot.localeCompare(b.student_name_snapshot,'en'));
 }
+// Preview only, for a date with no opened session or a legacy session without
+// a captured roster. Based on the CURRENT roster and never persisted as history.
+export function previewOfficialRoster(data,sectionId,windowId=null){
+  const {roster=[],profiles=[],attendance=[]}=data||{};
+  return roster.filter(r=>r.active!==false&&Number(r.section_id)===Number(sectionId))
+    .map(r=>{
+      const linked=profiles.find(p=>String(p.student_number||'')===String(r.student_number));
+      const entry={
+        student_number:String(r.student_number),
+        student_name_snapshot:r.full_name||
+          `${r.surname}, ${r.first_name} ${r.middle_initial||''}`.trim(),
+        linked_user_id:r.linked_user_id||linked?.user_id||null,
+        recorded_status:null,
+        remarks:null
+      };
+      return {...entry,status:windowId?
+        resolveStudentStatus(entry,attendance,profiles,windowId):'Not Yet Recorded'};
+    }).sort((a,b)=>a.student_name_snapshot.localeCompare(b.student_name_snapshot,'en'));
+}
+
+export function summarizeCalendarMonth(days){
+  return (days||[]).reduce((s,d)=>{
+    for(const row of d.sessions){
+      s.scheduled++;
+      if(row.windowId)s.opened++;
+      if(row.status==='Finalized')s.finalized++;
+      if(row.status==='Cancelled')s.cancelled++;
+    }
+    return s;
+  },{scheduled:0,opened:0,finalized:0,cancelled:0});
+}
+
 export function summarizeRegister(rows) {
   const summary={total:rows.length,Present:0,Late:0,Absent:0,Excused:0,'Not Yet Recorded':0};
   for(const r of rows)if(Object.prototype.hasOwnProperty.call(summary,r.status))summary[r.status]++;
