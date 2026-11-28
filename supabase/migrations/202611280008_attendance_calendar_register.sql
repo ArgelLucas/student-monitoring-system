@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.attendance_register_entries (
   student_name_snapshot text NOT NULL CHECK (length(trim(student_name_snapshot))>0),
   section_id_snapshot bigint NOT NULL REFERENCES public.sections(id),
   linked_user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-  recorded_status text CHECK (recorded_status IN ('Present','Late','Absent','Excused')),
+  recorded_status text CHECK (recorded_status IN ('Present','Late','Absent','Excused','Not Yet Recorded')),
   remarks text CHECK (remarks IS NULL OR length(remarks)<=500),
   corrected_by uuid REFERENCES auth.users(id),
   corrected_at timestamptz,
@@ -176,7 +176,8 @@ BEGIN
   IF NOT FOUND THEN
     RAISE EXCEPTION 'Student is not in the captured attendance roster';
   END IF;
-  v_status:=CASE WHEN p_status='Not Yet Recorded' THEN NULL ELSE p_status END;
+  -- Explicit Not Yet Recorded overrides even an erroneous check-in without deleting it.
+  v_status:=p_status;
   IF v_entry.recorded_status IS NOT DISTINCT FROM v_status THEN
     RAISE EXCEPTION 'No change to the recorded attendance status';
   END IF;
@@ -222,11 +223,30 @@ BEGIN
   IF v_session.status<>'Draft' THEN
     RAISE EXCEPTION 'Attendance session is already finalized or cancelled';
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.attendance_register_entries
+    WHERE window_id=p_window_id) THEN
+    RAISE EXCEPTION 'Cannot finalize an empty official attendance register';
+  END IF;
+  -- Original check-ins without captured roster identities must be reconciled.
+  IF EXISTS (
+    SELECT 1 FROM public.attendance_records a
+    LEFT JOIN public.student_profiles p ON p.user_id=a.student_id
+    WHERE a.attendance_window_id=p_window_id
+      AND NOT EXISTS (
+        SELECT 1 FROM public.attendance_register_entries e
+        WHERE e.window_id=p_window_id
+          AND (e.linked_user_id=a.student_id OR
+               (p.student_number IS NOT NULL AND e.student_number=p.student_number))
+      )
+  ) THEN
+    RAISE EXCEPTION 'Unmatched historical check-in. Review class membership before finalization';
+  END IF;
   IF p_mark_absent THEN
     UPDATE public.attendance_register_entries e SET
       recorded_status='Absent',remarks='Marked absent on instructor finalization: '||v_reason,
       corrected_by=auth.uid(),corrected_at=now()
-    WHERE e.window_id=p_window_id AND e.recorded_status IS NULL
+    WHERE e.window_id=p_window_id
+      AND (e.recorded_status IS NULL OR e.recorded_status='Not Yet Recorded')
       AND NOT EXISTS(
         SELECT 1 FROM public.attendance_records a
         LEFT JOIN public.student_profiles p ON p.user_id=a.student_id
