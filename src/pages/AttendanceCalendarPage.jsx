@@ -5,7 +5,7 @@ import {Badge,Card,Empty,MotionPage,PageAlert,Title} from '../components/UI.jsx'
 import {useSession} from '../state/SessionProvider.jsx';
 import {manilaClock,timeLabel} from '../lib/schedule.js';
 import {getDateSessions,getMonthSessions,shiftCalendarMonth,sessionRegisterRows,
-  summarizeRegister,exportRegisterCsv,REGISTER_STATUSES,validCalendarDate} from '../lib/attendance-calendar.js';
+  summarizeRegister,previewOfficialRoster,summarizeCalendarMonth,exportRegisterCsv,REGISTER_STATUSES,validCalendarDate} from '../lib/attendance-calendar.js';
 import {loadMonthSessionReviews,loadSessionRegister,prepareHistoricalRegister,
   correctAttendanceStatus,finalizeAttendanceSession,cancelAttendanceSession} from '../lib/attendance-calendar-api.js';
 import '../styles/attendance-calendar.css';
@@ -77,9 +77,8 @@ export function AttendanceCalendarPage(){
     sessionRegisterRows(register.entries,data.attendance,data.profiles,currentWindow),
     [register.entries,data.attendance,data.profiles,currentWindow]);
   const counts=useMemo(()=>summarizeRegister(entries),[entries]);
-  const reviewsList=Object.values(reviews);
-  const finalizedCount=reviewsList.filter(r=>r.status==='Finalized').length;
-  const cancelledCount=reviewsList.filter(r=>r.status==='Cancelled').length;
+  const monthSummary=useMemo(()=>summarizeCalendarMonth(byDate),[byDate]);
+  const previewRows=useMemo(()=>current?previewOfficialRoster(data,current.sectionId,currentWindow):[],[data,current,currentWindow]);
 
   function selectDate(next){
     if(!validCalendarDate(next))return;
@@ -130,6 +129,7 @@ export function AttendanceCalendarPage(){
           </div>
         </div>
         <div className="attendance-v3-legend"><span>Scheduled</span><span>Opened</span><span>Finalized</span><span>Cancelled</span></div>
+        <div className="attendance-v3-month-counts"><span>{monthSummary.scheduled} meeting slots</span><span>{monthSummary.opened} opened</span><span>{monthSummary.finalized} finalized</span><span>{monthSummary.cancelled} cancelled</span></div>
         <div className="attendance-v3-grid" role="group" aria-label="Choose attendance date">
           {WEEK.map(w=><span className="attendance-v3-week" key={w}>{w}</span>)}
           {Array.from({length:offset},(_,i)=><span aria-hidden="true" key={'padding-'+i}/>)}
@@ -194,6 +194,18 @@ export function AttendanceCalendarPage(){
         <div><strong>No attendance session opened for this meeting.</strong>
           <p>Students are Not Yet Recorded, not absent. Use Classes to open attendance during its scheduled time or Force Open today's class.</p></div>
       </div>}
+      {current&&(!currentWindow||(installed&&!loadingRegister&&!register.review))&&<>
+        <p className="attendance-v3-explainer">Current official section roster preview · {previewRows.length} students. For historical dates, this is not a verified past enrollment snapshot.</p>
+        <div className="attendance-v3-table-scroll attendance-v3-preview-scroll"><table className="attendance-v3-table">
+          <thead><tr><th>No.</th><th>Student number</th><th>Official full name</th><th>Attendance</th></tr></thead>
+          <tbody>{previewRows.map((student,i)=><tr key={student.student_number}>
+            <td>{i+1}</td><td className="attendance-v3-number">{student.student_number}</td>
+            <td>{student.student_name_snapshot}</td>
+            <td><Badge tone={statusTone(student.status)}>{student.status}</Badge></td>
+          </tr>)}</tbody>
+        </table></div>
+        {!previewRows.length&&<Empty>There are no active official roster students for this section. Check your private roster import.</Empty>}
+      </>}
       {currentWindow&&!installed&&<p className="attendance-v3-explainer">The calendar can show this existing window, but corrections and finalization require migration 008.</p>}
       {currentWindow&&installed&&loadingRegister&&<p role="status" className="attendance-v3-explainer">Loading official attendance register…</p>}
       {currentWindow&&installed&&!loadingRegister&&!register.review&&<>
