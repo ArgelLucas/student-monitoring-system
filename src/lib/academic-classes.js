@@ -65,6 +65,3 @@ export const updateEnrollmentStatus=(id,status,reason)=>
   });
 export const archiveClassOffering=(id)=>academicRpc('admin_archive_class_offering',{p_offering_id:Number(id)});
 
-export const offeringTitle=(offering,sections,subjects)=>
-  `${sections.find(s=>Number(s.id)===Number(offering.section_id))?.code||'Section'} · ${subjects.find(s=>Number(s.id)===Number(offering.subject_id))?.code||'Subject'}`;
-export const enrollmentName=(student)=>`${student.surname_at_enrollment}, ${student.first_name_at_enrollment} ${student.middle_initial_at_enrollment}`.trim();
