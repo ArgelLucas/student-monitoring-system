@@ -1629,6 +1629,12 @@ export function ReportsPage() {
       >
         Reports & exports
       </Title>
+      <p className="roster-v61-warning" role="note">
+        This legacy report displays original student check-ins, not instructor-corrected
+        Late, Excused or Absent statuses. For corrected official statuses, open the
+        <Link to="/admin/attendance"> Attendance calendar</Link>, select a session,
+        and export its class register.
+      </p>
       <Card>
         <div className="roster-v61-report-tabs" aria-label="Report type">
           <button
