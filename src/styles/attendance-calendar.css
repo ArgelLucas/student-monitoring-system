@@ -73,3 +73,7 @@
 .attendance-v3-day:focus-visible,.attendance-v3-navigation button:focus-visible,.attendance-v3-meeting:focus-visible,.attendance-v3-link:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
 @media(max-width:1100px){.attendance-v3-main{grid-template-columns:1fr}.attendance-v3-stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:650px){.attendance-v3-calendar-card,.attendance-v3-day-card,.attendance-v3-register{padding:17px 14px}.attendance-v3-day{min-height:59px;padding:7px 5px}.attendance-v3-day small{font-size:9px}.attendance-v3-navigation{width:100%;justify-content:end}.attendance-v3-stats{grid-template-columns:repeat(2,1fr)}.attendance-v3-day-summary{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.attendance-v3-month-counts{display:flex;gap:12px;flex-wrap:wrap;margin:-3px 0 15px;color:var(--muted);font-size:12px}
+.attendance-v3-month-counts span{padding:5px 8px;border:1px solid var(--stroke);border-radius:6px;background:var(--surface-2)}
+.attendance-v3-preview-scroll{margin-top:12px;max-height:310px}
