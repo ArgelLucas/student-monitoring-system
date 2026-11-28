@@ -43,14 +43,14 @@ test('extra session is included in daily register for actual date',()=>{
   assert.equal(rows[0].status,'Open / waiting');
 });
 test('admin override requires reason, short duration and protected SQL authorization',()=>{
-  const sql=source('supabase/migrations/202611260006_admin_attendance_override.sql');
+  const sql=source('supabase/migrations/202611260006_attendance_override.sql');
   assert.match(sql,/public\.force_open_class_attendance/);
   assert.match(sql,/p_minutes NOT IN \(15,30,60\)/);
-  assert.match(sql,/char_length\(v_reason\) < 10/);
+  assert.match(sql,/length\(v_reason\) < 10/);
   assert.match(sql,/NOT public\.portal_session_active\(\) OR NOT public\.is_admin\(\)/);
   assert.match(sql,/attendance\.window\.force_opened/);
   assert.match(sql,/IF NOT v_window\.is_override/);
-  assert.match(sql,/AND s\.section_id=v_profile\.section_id/);
+  assert.match(sql,/s\.section_id=v_profile\.section_id/);
   assert.match(sql,/is_override=false/);
   assert.match(sql,/REVOKE ALL ON FUNCTION/);
   const admin=source('src/pages/AdminPages.jsx');

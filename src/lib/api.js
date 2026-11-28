@@ -119,17 +119,29 @@ async function getProfilesForAdmin() {
 }
 
 async function getOfficialRoster() {
-  const result = await supabase.from('student_roster')
-    .select('student_number,section_id,surname,first_name,middle_initial,full_name,linked_user_id,active,name_needs_review,source_term')
-    .eq('active', true).order('section_id').order('surname');
-  if (!result.error) return { rows: result.data, available: true };
-  // During setup the new schema may not yet be installed. Preserve admin
-  // access and display an upgrade notice instead of crashing the dashboard.
-  if (['42P01', 'PGRST205', 'PGRST200'].includes(result.error.code) ||
-      /could not find the table.*student_roster|relation.*student_roster.*does not exist/i.test(result.error.message || '')) {
-    return { rows: [], available: false };
+  // Supabase caps unpaginated queries (often at 1000 rows). A truncated
+  // roster would silently miscount attendance and academic reporting.
+  const fields = 'student_number,section_id,surname,first_name,middle_initial,full_name,linked_user_id,active,name_needs_review,source_term';
+  const pageSize = 500;
+  const maxRows = 10000;
+  const collected = [];
+  for (let offset = 0; offset <= maxRows; offset += pageSize) {
+    const result = await supabase.from('student_roster')
+      .select(fields)
+      .eq('active', true)
+      .order('student_number')
+      .range(offset, offset + pageSize - 1);
+    if (result.error) {
+      if (['42P01', 'PGRST205', 'PGRST200'].includes(result.error.code) ||
+          /could not find the table.*student_roster|relation.*student_roster.*does not exist/i.test(result.error.message || '')) {
+        return { rows: [], available: false };
+      }
+      throw new Error(result.error.message || 'Could not load the official student roster');
+    }
+    collected.push(...result.data);
+    if (result.data.length < pageSize) return { rows: collected, available: true };
   }
-  throw new Error(result.error.message || 'Could not load the official student roster');
+  throw new Error('Official student roster exceeds the safe 10,000-row limit. Use server-side paginated reporting.');
 }
 
 async function getAuditWithCompatibility() {
