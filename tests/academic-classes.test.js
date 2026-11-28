@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {offeringTitle,enrollmentName} from '../src/lib/academic-classes.js';
+import {offeringTitle,enrollmentName} from '../src/lib/academic-classes-format.js';
 
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const sql=read('supabase/migrations/202611280007_academic_classes_enrollments.sql');
