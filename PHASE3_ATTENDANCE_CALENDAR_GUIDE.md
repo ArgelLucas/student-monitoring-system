@@ -6,7 +6,7 @@
 
 Admin → **Attendance** becomes a month calendar with day selection.
 - Each date shows real scheduled meeting slots and any extra attendance session created through the existing **Classes → Force Open** control.
-- The chosen date displays its sections and subjects. Click a session to see student check-in statuses.
+- The chosen date displays its sections and subjects. Click a session to see student check-in statuses. Even for a scheduled class that was never opened, it displays the current official section roster with **Not Yet Recorded** for every student (clearly labeled as a preview, never a past enrollment snapshot).
 - If the instructor has never opened attendance, the calendar shows **Scheduled · not opened** with no attendance register and **no absent students**.
 - For windows created after migration 008, a roster snapshot is captured automatically when the session first opens, including students without a GitHub account.
 - Instructors can correct a captured student's status to **Present, Late, Absent, Excused, Not Yet Recorded**. A reason (8–500 chars) is mandatory; the audit log records the prior and new values. Original student check-in receipts in `attendance_records` are not deleted or edited.
