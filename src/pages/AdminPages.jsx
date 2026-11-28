@@ -90,6 +90,7 @@ const NAV = [
   ["/admin/students", "Students", UsersRound],
   ["/admin/attendance", "Attendance", CalendarCheck],
   ["/admin/classes", "Classes", BookOpen],
+  ["/admin/academic-classes", "Class enrollments", GraduationCap],
   ["/admin/class-records", "Class records", ClipboardList],
   ["/admin/reports", "Reports", BarChart3],
   ["/admin/audit", "Activity log", Activity],
