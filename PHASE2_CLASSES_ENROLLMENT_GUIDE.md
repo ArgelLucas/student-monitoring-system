@@ -1,69 +1,46 @@
-# Phase 2 — Classes, Semesters and Enrollments
+# Update: manual enrollment has been retired
 
-**Status: proposed code in review branch. Not deployed. No live student or grade data modified.**
+The previous Phase 2 class-enrollment workflow was replaced at the instructor's request by **roster-led class management**.
 
-## What's implemented
+The authoritative class lists are the existing 1A, 1B, 2A, 2B, 3A and 3B sections from the instructor's reviewed source spreadsheets. **Never publish the actual student names, student numbers or original workbook in GitHub.**
 
-- Academic years with validated calendar start/end dates.
-- First/second semesters, checked against academic-year dates and existing term overlap.
-- Class offerings per academic term + section + subject, tied to a verified administrator instructor.
-- A snapshot of the published weekly timetable for each offering.
-- A non-destructive class enrollment record per official student number, including immutable at-enrollment names, section, and enrollment date.
-- Enroll multiple roster students in a selected offering (up to 200 per transaction), with duplicate avoidance and section validation.
-- Change enrollment statuses to enrolled / dropped / completed with a mandatory reason and audit event.
-- Archive offerings while retaining past enrollment and meeting data.
-- Admin-only academic workspace at `#/admin/academic-classes`, responsive and consistent with current navigation.
-- Pagination for up to 10,000 academic records per entity; explicit error above that limit.
+## Verified sources (private, not uploaded to GitHub)
 
-## Files
+- First year: 1A (25 import-ready entries), 1B (26 import-ready entries). Source term: **2nd Semester**.
+- Second year: 2A (33 import-ready entries), 2B (31 import-ready entries). Source term: **1st Semester**.
+- Third year: 3A (43 import-ready entries), 3B (41 import-ready entries). Source term: **1st Semester**.
+- In total **199 import-ready student identities** across six sections, plus **two conflicting 3B entries excluded from the private import**. Some names need human review.
 
-**Created**
-- `supabase/migrations/202611280007_academic_classes_enrollments.sql`
-- `src/lib/academic-classes.js`
-- `src/lib/academic-classes-format.js`
-- `src/pages/AcademicClassesPage.jsx`
-- `src/styles/academic-classes.css`
-- `tests/academic-classes.test.js`
-- This guide.
+**These numbers describe the original reviewed private roster; they are not hard-coded into the UI or guaranteed to match the currently imported database.**
 
-**Modified**
-- `src/App.jsx`
-- `src/pages/AdminPages.jsx`
+## New workflow
 
-**Dependencies**: no new npm packages. Existing Supabase client/React used.
+Admin → **Classes** is the only class navigation entry. It now includes:
+1. Year-level tabs (1st, 2nd, 3rd).
+2. Section selector (A/B).
+3. Read-only, searchable official student roster from Supabase (migration 004 and the reviewed private import).
+4. Subject timetable for the section, sourced from the existing class schedule table.
+5. Portal approval statuses and name-review flags.
+6. Existing attendance windows, Close and Force open buttons, unchanged.
 
-**Environment variables**: no new variables.
+A student assigned to 2A appears in the section directory once and can be shown with the independent timetable for CT 223a and QCA 113. Attendance records and grades remain **per subject and meeting** as before.
 
-## Important security and data cautions
+## Files and deployment
 
-- No student numbers, names, grading workbook data, scores, or private SQL import in GitHub.
-- All five academic tables use Row Level Security with admin-only SELECT and revoked direct browser writes. Mutations are authorized in Supabase SECURITY DEFINER RPCs.
-- Student number and section must match the active official roster; students cannot enroll themselves.
-- Historical snapshots survive changes to the student's current section/name.
-- No automatic enrollment migration/backfill is run. Existing approved GitHub accounts and student profiles remain unchanged.
-- Existing attendance, gradebook, dashboard and reports still read their legacy tables until future phases introduce verified class-offering links.
-- Do not treat the new enrollment UI as an automatic historical attendance or grade correction.
-
-## Deployment order (after code review and validation)
-
-1. Review Phase 1 PR and resolve the duplicate `006` migration safely. Verify the **actual live** `attendance_windows` columns and function definitions before running the corrected migration.
-2. Confirm migrations `001–006` are installed, including the official private roster needed by migration `004`. Do not blindly rerun old SQL.
-3. Create a restorable backup of the real Supabase project.
-4. Review migration `007` in the SQL Editor, then apply it in a **staging project first**. Validate table constraints, RPC behavior with admin/student/anon sessions, and RLS. Apply to production only after staging succeeds.
-5. Review the GitHub PR and validate CI. Merge Phase 1 first, then Phase 2. GitHub Pages only deploys the React code; it does **not** apply SQL.
-6. In the live site, open Admin → Class enrollments. If migration 007 is not installed, a setup notice appears instead of a form.
-7. Create an academic year and semester with institution-approved calendar dates.
-8. Create offerings for the sections and subjects actually being taught (e.g. 2A — CT 223a and 2A — QCA 113 are different offerings).
-9. Review official student roster and enrollment dates, select eligible students, and explicitly enroll them in each offering.
-10. Confirm the same official student number appears in multiple classes without creating duplicate profiles. Verify changing enrollment status preserves its row and audit trail.
+- Added: `src/lib/official-class-directory.js`, `src/components/OfficialClassDirectory.jsx`, `src/styles/official-class-directory.css`, `tests/official-class-directory.test.js`.
+- Modified: `src/pages/AdminPages.jsx`, `src/App.jsx`.
+- Removed unused frontend modules and old manual-enrollment tests: `AcademicClassesPage.jsx`, `academic-classes.css`, `academic-classes.js`, `academic-classes-format.js`, `academic-classes.test.js`.
+- The legacy `#/admin/academic-classes` route redirects to `#/admin/classes`.
+- No npm dependency or environment variable changes.
+- **Migration 007 remains in source control for migration history and safety**, but the new UI does not read, modify or depend on those academic-year, offering or enrollment tables. DO NOT drop these tables if they were already installed; doing so could destroy data. No automatic rollback or destructive SQL was run.
+- No new SQL migration is required for this UI change. It requires the pre-existing official roster (migration 004 plus verified private roster import) for student lists.
 
 ## Tests and limitations
 
-CI runs `npm run check`, `npm test`, `npm run build` using non-production placeholder Supabase configuration.
-This validates code and static contracts, **not** the live DB migration.
-No PostgreSQL container was available in the coding environment to execute the migration.
-A staging Supabase test remains mandatory before release.
+PR checks run source validation, automated tests and production React build. The source workbook was inspected and source term differences preserved. Live Supabase roster counts, migration state, and full instructor/student integration are not accessible from GitHub; confirm them in the admin portal.
 
-## Next phase
+The directory reflects the **current official section roster**, not a historical, term-frozen enrollment snapshot. Showing a section list does not prove enrollment in an earlier semester or a student's attendance. Academic-year-specific reports and official historic grade finalization should continue to require an instructor-reviewed, term-scoped data model in a future phase.
 
-Phase 3 will introduce dated class meetings, attendance calendar sessions, historical enrollment snapshots, corrections, late/excused/absent statuses and audited finalization. The Phase 2 schema intentionally does not change the existing attendance authorization functions or current report results.
+## Safe publication
+
+Review the PR checks, merge into `main`, then monitor GitHub Actions. Refresh the live website and open Admin → Classes. Compare visible names and counts with the private instructor review workbook. If no names appear, check migration 004/official roster import in Supabase; do not hardcode student names into the frontend.
