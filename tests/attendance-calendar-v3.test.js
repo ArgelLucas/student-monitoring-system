@@ -113,6 +113,7 @@ test('never overwrite or delete original check-ins, and block reopens after fina
  assert.match(sql,/NOT OLD\.is_open OR NEW\.opened_at IS DISTINCT FROM OLD\.opened_at/);
  assert.match(sql,/v\.status IN \('Finalized','Cancelled'\)/);
  assert.match(sql,/IF p_mark_absent THEN/);
+ assert.match(sql,/Cannot mark absent while the check-in window is still active/);
  assert.match(sql,/Cannot finalize an empty official attendance register/);
  assert.match(sql,/Unmatched historical check-in/);
  assert.match(sql,/recorded_status='Not Yet Recorded'/);
