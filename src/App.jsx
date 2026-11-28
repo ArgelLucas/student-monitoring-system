@@ -5,6 +5,7 @@ import { LoginPage, ProfilePage, PendingPage, StudentHome, StudentAttendance, St
 import { AdminLayout, Overview, StudentsPage, AttendancePage, ClassesPage, ReportsPage, ActivityPage } from './pages/AdminPages.jsx';
 import { Card } from './components/UI.jsx';
 import { ClassRecordsPage } from './pages/ClassRecordsPage.jsx';
+import { AttendanceCalendarPage } from './pages/AttendanceCalendarPage.jsx';
 
 function Landing(){const {context}=useSession();return <Navigate replace to={!context?'/login':context.admin?'/admin':!context.profile?'/profile':context.profile.is_approved?'/student':'/pending'}/>;}
 function AdminGate(){const {context}=useSession();return context?.admin?<AdminLayout/>:<Landing/>;}
@@ -28,7 +29,7 @@ export default function App(){
     <Route path="/admin" element={<AdminGate/>}>
       <Route index element={<Overview/>}/>
       <Route path="students" element={<StudentsPage/>}/>
-      <Route path="attendance" element={<AttendancePage/>}/>
+      <Route path="attendance" element={<AttendanceCalendarPage/>}/>
       <Route path="classes" element={<ClassesPage/>}/>
       <Route path="academic-classes" element={<Navigate replace to="/admin/classes"/>}/>
       <Route path="reports" element={<ReportsPage/>}/>
