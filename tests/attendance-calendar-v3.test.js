@@ -70,6 +70,7 @@ test('explicit correction wins over check-in, but originals are unchanged',()=>{
  assert.equal(resolveStudentStatus(entry,attendance,[],9),'Present');
  assert.equal(resolveStudentStatus({...entry,recorded_status:'Excused'},attendance,[],9),'Excused');
  assert.equal(resolveStudentStatus({...entry,recorded_status:'Late'},attendance,[],9),'Late');
+ assert.equal(resolveStudentStatus({...entry,recorded_status:'Not Yet Recorded'},attendance,[],9),'Not Yet Recorded');
  assert.equal(resolveStudentStatus(entry,[],[],9),'Not Yet Recorded');
  assert.equal(attendance[0].status,'Present');
  const rows=sessionRegisterRows([entry],attendance,[],9);
@@ -112,6 +113,9 @@ test('never overwrite or delete original check-ins, and block reopens after fina
  assert.match(sql,/NOT OLD\.is_open OR NEW\.opened_at IS DISTINCT FROM OLD\.opened_at/);
  assert.match(sql,/v\.status IN \('Finalized','Cancelled'\)/);
  assert.match(sql,/IF p_mark_absent THEN/);
+ assert.match(sql,/Cannot finalize an empty official attendance register/);
+ assert.match(sql,/Unmatched historical check-in/);
+ assert.match(sql,/recorded_status='Not Yet Recorded'/);
  assert.match(sql,/e\.recorded_status IS NULL/);
  assert.match(sql,/NOT EXISTS\(\s*SELECT 1 FROM public\.attendance_records/);
  assert.match(sql,/attendance\.session\.finalized/);
