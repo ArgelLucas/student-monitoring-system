@@ -54,6 +54,15 @@ test('open, finalized, cancelled and extra sessions remain distinct',()=>{
  assert.equal(rows.find(s=>s.windowId===10).status,'Cancelled');
  assert.equal(getMonthSessions(data,'2026-11',{9:{status:'Finalized'}},clock).length,30);
 });
+test('historical real session survives later timetable weekday edits',()=>{
+ const data={...base,windows:[{
+  id:77,schedule_id:3,meeting_date:'2026-11-24',is_open:false,is_override:false,
+  opened_at:'2026-11-24T01:00:00Z',expires_at:'2026-11-24T02:00:00Z'
+ }]};
+ const sessions=getDateSessions(data,'2026-11-24',{},clock);
+ assert.ok(sessions.some(s=>s.windowId===77));
+ assert.equal(sessions.find(s=>s.windowId===77).status,'Closed / expired');
+});
 test('explicit correction wins over check-in, but originals are unchanged',()=>{
  const entry={student_number:'2026000001',student_name_snapshot:'Test, Example',
    recorded_status:null,linked_user_id:'u1'};
