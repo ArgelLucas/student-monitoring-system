@@ -87,10 +87,14 @@ FOR EACH ROW EXECUTE FUNCTION public.seed_attendance_register();
 CREATE OR REPLACE FUNCTION public.prevent_attendance_reopening()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 BEGIN
-  IF NEW.is_open AND NOT OLD.is_open AND EXISTS(
-    SELECT 1 FROM public.attendance_session_reviews v
-      WHERE v.window_id=OLD.id AND v.status IN ('Finalized','Cancelled')
-  ) THEN
+  -- Existing open_class_attendance RPC uses UPSERT and may change opened_at
+  -- while is_open was already true but expired. Reject that as reopening too.
+  IF NEW.is_open AND
+    (NOT OLD.is_open OR NEW.opened_at IS DISTINCT FROM OLD.opened_at)
+    AND EXISTS(
+      SELECT 1 FROM public.attendance_session_reviews v
+        WHERE v.window_id=OLD.id AND v.status IN ('Finalized','Cancelled')
+    ) THEN
     RAISE EXCEPTION 'This attendance session has been finalized or cancelled and cannot be reopened';
   END IF;
   RETURN NEW;
