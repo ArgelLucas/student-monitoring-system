@@ -151,4 +151,5 @@ test('new admin Attendance route uses real calendar and not the legacy read-only
  assert.match(page,/exportRegisterCsv\(/);
  assert.match(page,/Not Yet Recorded/);
  assert.match(page,/window\.confirm/);
+ assert.match(read('src/pages/AdminPages.jsx'),/This legacy report displays original student check-ins/);
 });
