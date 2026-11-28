@@ -1,0 +1,45 @@
+/* StudentMonitor official roster-led classes. Calm institutional UI; no motion effects. */
+.official-classes{padding:23px 25px;margin-bottom:20px}
+.official-classes-heading{display:flex;gap:16px;justify-content:space-between;align-items:center;margin-bottom:19px}
+.official-classes-heading h2{margin:4px 0 5px;font-size:22px;color:var(--text)}
+.official-classes-heading p,.official-details p,.official-source-note,.official-footnote{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.official-eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--mint)}
+.official-total{font-size:27px;font-weight:750;font-variant-numeric:tabular-nums;color:var(--text);text-align:right;min-width:96px}
+.official-total small{display:block;font-size:11px;font-weight:500;color:var(--muted)}
+.official-year-tabs{display:flex;gap:8px;border-bottom:1px solid var(--stroke);padding-bottom:12px;margin-bottom:13px}
+.official-tab,.official-section{font:inherit;color:var(--muted);cursor:pointer;background:transparent;border:1px solid var(--stroke);border-radius:8px;padding:11px 15px;transition:background-color .16s,border-color .16s}
+.official-tab{flex:1;text-align:left;font-weight:750;font-size:14px}
+.official-tab span,.official-section span{display:block;margin-top:4px;font-size:11px;font-weight:450}
+.official-tab.is-selected,.official-section.is-selected{color:var(--text);border-color:var(--mint);background:var(--surface-3)}
+.official-tab:focus-visible,.official-section:focus-visible{outline:3px solid var(--mint);outline-offset:3px}
+.official-section-tabs{display:flex;flex-wrap:wrap;gap:9px;margin:13px 0 22px}
+.official-section{text-align:left;min-width:160px;padding:11px 15px}
+.official-section strong{font-size:14px}
+.official-details{display:flex;justify-content:space-between;gap:16px;align-items:end;margin-bottom:12px}
+.official-details h3{font-size:19px;margin:0 0 3px;color:var(--text)}
+.official-details h3 span{font-size:14px;color:var(--muted);font-weight:500}
+.official-details label{font-size:12px;display:grid;gap:5px;min-width:225px;color:var(--muted)}
+.official-details input{font:inherit;font-size:13px;border:1px solid var(--stroke-strong);border-radius:8px;padding:9px 12px;background:var(--surface);color:var(--text);width:100%}
+.official-details input:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.official-source-note{margin:10px 0 18px;padding:9px 12px;background:var(--surface-2);border:1px solid var(--stroke);border-radius:8px}
+.official-subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:13px 0 22px}
+.official-subject{border:1px solid var(--stroke);border-radius:9px;padding:14px 15px;background:var(--surface-2)}
+.official-subject strong{font-size:15px;color:var(--text)}
+.official-subject small{display:block;color:var(--muted);margin-top:4px}
+.official-subject div{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.official-subject div span{border:1px solid var(--stroke);background:var(--surface);border-radius:5px;padding:5px 8px;color:var(--muted);font-size:12px}
+.official-roster-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 10px}
+.official-roster-heading h3{font-size:16px;color:var(--text);margin:0}
+.official-roster-heading h3 span{font-weight:500;color:var(--muted)}
+.official-roster-scroll{max-height:400px;overflow:auto;border:1px solid var(--stroke);border-radius:9px}
+.official-roster-table{border-collapse:collapse;min-width:600px;width:100%;font-size:13px;color:var(--text)}
+.official-roster-table thead{position:sticky;top:0;z-index:2;background:var(--surface-2)}
+.official-roster-table th{text-align:left;font-weight:700;font-size:12px;color:var(--muted);padding:11px 12px}
+.official-roster-table td{padding:11px 12px;border-top:1px solid var(--stroke)}
+.official-roster-table td:first-child{width:48px;color:var(--muted)}
+.official-mono{font-variant-numeric:tabular-nums}
+.official-review{display:inline-block;margin-left:8px;font-size:11px;color:var(--muted)}
+.official-footnote{margin-top:14px}
+.official-note{color:var(--muted);font-size:13px;padding:14px;background:var(--surface-2);border-radius:8px}
+@media(max-width:700px){.official-classes{padding:17px 15px}.official-classes-heading{align-items:start}.official-total{font-size:22px}.official-subjects{grid-template-columns:1fr}.official-details{align-items:stretch;flex-direction:column}.official-details label{min-width:0}.official-tab{padding:10px;font-size:13px}.official-section{flex:1;min-width:135px}}
+@media(prefers-reduced-motion:reduce){.official-tab,.official-section{transition:none}}

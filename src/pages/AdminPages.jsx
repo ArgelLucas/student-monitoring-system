@@ -1,3 +1,4 @@
+import {OfficialClassDirectory} from "../components/OfficialClassDirectory.jsx";
 import React, {
   useEffect,
   useLayoutEffect,
@@ -90,7 +91,6 @@ const NAV = [
   ["/admin/students", "Students", UsersRound],
   ["/admin/attendance", "Attendance", CalendarCheck],
   ["/admin/classes", "Classes", BookOpen],
-  ["/admin/academic-classes", "Class enrollments", GraduationCap],
   ["/admin/class-records", "Class records", ClipboardList],
   ["/admin/reports", "Reports", BarChart3],
   ["/admin/audit", "Activity log", Activity],
@@ -1451,6 +1451,7 @@ export function ClassesPage() {
       >
         Classes & check-in windows
       </Title>
+      <OfficialClassDirectory data={data}/>
       <Card>
         <div className="filter-row">
           <label>
