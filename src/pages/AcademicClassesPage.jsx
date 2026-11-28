@@ -5,8 +5,9 @@ import {useSession} from '../state/SessionProvider.jsx';
 import {
   loadAcademicWorkspace,createAcademicYear,createAcademicTerm,
   createClassOffering,enrollClassStudents,updateEnrollmentStatus,
-  archiveClassOffering,offeringTitle,enrollmentName
+  archiveClassOffering
 } from '../lib/academic-classes.js';
+import {offeringTitle,enrollmentName} from '../lib/academic-classes-format.js';
 import '../styles/academic-classes.css';
 
 const isoToday=()=>new Intl.DateTimeFormat('en-CA',{
