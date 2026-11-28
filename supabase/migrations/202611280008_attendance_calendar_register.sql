@@ -170,6 +170,9 @@ BEGIN
   IF v_session.status='Cancelled' THEN
     RAISE EXCEPTION 'Cancelled attendance cannot be corrected';
   END IF;
+  IF p_status='Absent' AND v_window.is_open AND v_window.expires_at>now() THEN
+    RAISE EXCEPTION 'Cannot mark absent while the check-in window is still active';
+  END IF;
   SELECT * INTO v_entry FROM public.attendance_register_entries
     WHERE window_id=p_window_id AND student_number=btrim(coalesce(p_student_number,''))
     FOR UPDATE;
