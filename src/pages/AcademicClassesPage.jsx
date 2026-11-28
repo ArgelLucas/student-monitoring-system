@@ -160,7 +160,7 @@ export function AcademicClassesPage(){
             {matchingOfferings.map(o=><button key={o.id} type="button"
               className={`academic-class-tab ${String(o.id)===activeOffering?'selected':''}`}
               aria-pressed={String(o.id)===activeOffering}
-              onClick={()=>{setSelectedOffering(String(o.id));setSelectedStudents([]);setStudentSearch('');}}>
+              onClick={()=>{setSelectedOffering(String(o.id));setSelectedStudents([]);setStudentSearch('');setEditingEnrollment('');}}>
               <strong>{offeringTitle(o,sections,subjects)}</strong>
               <small>{enrollments.filter(e=>e.offering_id===o.id&&e.status==='enrolled').length} enrolled</small>
               {o.status==='archived'&&<Badge>Archived</Badge>}
