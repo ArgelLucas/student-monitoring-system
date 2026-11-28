@@ -1,4 +1,4 @@
-name: Validate Academic Upgrade PR
+name: Validate Academic Upgrade Phase 2
 on:
   pull_request:
     branches: [main]
